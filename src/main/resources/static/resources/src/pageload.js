@@ -1,0 +1,379 @@
+"use strict";
+
+import tmplt from "../../../templates/board/addShop.html";
+import write_tmplt from "../../../templates/board/write.html";
+
+const axios = require('axios');
+const $ = require("jquery");
+const cors = require('cors');
+let idx = null;
+let latlng = null;
+
+$(()=>{
+    new content_page();
+})
+
+export class content_page {
+    constructor() {
+        this.page_load();
+        // this.page_write();
+        // this.page_edit();
+        // this.page_delete();
+        //this.page_edit_submit();
+        // this.file_upload();
+        // this.nav_down();
+        this.pic_view();
+        this.eventBinding();
+    }
+    eventBinding(){
+        $(document).on('click','.write_btn',()=>{
+            $('.listWrapper').html(write_tmplt);
+        })
+        $(document).on('click','.addShop_btn',()=>{
+            // const template=require("../../../templates/board/addShop.html");
+            // let wrapper=document.getElementsByClassName('.listWrapper')
+            $('.listWrapper').html(tmplt);
+        })
+        let httpRequest = new XMLHttpRequest()
+        // if(httpRequest.status===200){
+        console.log(httpRequest.getResponseHeader("access_token"));
+        // }else{
+        //     console.log(httpRequest.status);
+        // }
+
+        //서치필터
+        $(document).on('onkeyup','#shopName',(e)=>{
+            let keyword = e.currentTarget.attr('value');
+            this.searchFilter(keyword);
+        })
+        //필터선택시인풋
+        $(document).on('click','.item',(e)=>{
+            let input=document.getElementsByClassName("shopName");
+            input.attr('value',
+            e.currentTarget.getElementsByClassName("name")
+            )
+        })
+
+    }
+    searchFilter(keyword){
+        let items = document.getElementsByClassName("item");
+        items.forEach((item, index, list)=>{
+            let name = item.getElementsByClassName("name");
+            if(name.indexOf(keyword)>-1){
+                item.attr('display','display');
+            }else{
+                item.attr('display','none');
+            }
+        })
+    }
+
+
+    pic_view(){
+
+        // $(document).ready(()=>{
+        //     axios.get("shoplist", {
+        //         responseType : "json"
+        //     }).then((response)=> {
+        //         console.log(response)
+        //         latlng=response.data;
+        //         render_map()
+        //     });
+        // })
+
+        $(document).ready(()=>{
+            axios.post(`/board/shop/list`)
+                .then((res) => {
+                    latlng=res.data;
+                    console.log("res->",res.data);
+                }).then(
+                    render_map()
+                )
+        })
+
+        function render_map(){
+            var container = document.getElementById('map');
+            if(container===null || container===undefined){return null;}
+            var options = {
+                center: new kakao.maps.LatLng(35.13863521918976, 126.91376115137437),
+                level: 3
+            };
+            var map = new kakao.maps.Map(container, options);
+            var content = null;
+            let positions=[];
+            // if(latlng.length>0) {
+            //     for (let i = 0; i < latlng.length; i++) {
+            //         positions.push({
+            //             title: `test` + i,
+            //             latlng: new kakao.maps.LatLng(latlng[i].shopLat, latlng[i].shopLong)
+            //         })
+            //     }
+            // }
+
+//---마커이벤트
+            let marker = new kakao.maps.Marker({position: map.getCenter()});
+            marker.setMap(map);
+            kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+                let _latlng = mouseEvent.latLng;
+                marker.setPosition(_latlng);
+
+                $('input[name=shopLat]').attr('value', _latlng.getLat());
+                $('input[name=shopLong]').attr('value', _latlng.getLng());
+                    console.log(_latlng);
+                //->폼데이터 변경
+                //위도: _latlng.getLat()
+                //경도: _latlng.getLng()
+
+            });
+
+            // var positions = [
+            //     {
+            //         title: 'test',
+            //         latlng: new kakao.maps.LatLng(latlng[0].shopLat, latlng[0].shopLong),
+            //
+            //     },
+            //     {
+            //         title: 'test2',
+            //         latlng: new kakao.maps.LatLng(latlng[1].shopLat, latlng[1].shopLong),
+            //
+            //     },
+            //     {
+            //         title: 'test3',
+            //         latlng: new kakao.maps.LatLng(latlng[2].shopLat, latlng[2].shopLong)
+            //     },
+            //     {
+            //         title: 'test4',
+            //         latlng: new kakao.maps.LatLng(latlng[3].shopLat, latlng[3].shopLong)
+            //     }
+            // ];
+            var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+
+            for (var i = 0; i < positions.length; i ++) {
+
+                // 마커 이미지의 이미지 크기 입니다
+                var imageSize = new kakao.maps.Size(24, 35);
+
+                // 마커 이미지를 생성합니다
+                var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+                // 마커를 생성합니다
+                marker = new kakao.maps.Marker({
+                    map: map, // 마커를 표시할 지도
+                    position: positions[i].latlng, // 마커를 표시할 위치
+                    title: positions[i].title, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
+                    image: markerImage, // 마커 이미지
+                });
+                var customOverlay = new kakao.maps.CustomOverlay({
+                    position: positions[i].latlng,
+                    content: positions[i].content
+                });
+                customOverlay.setMap(map);
+            }
+            function panTo(x,y) {
+                map.panTo( new kakao.maps.LatLng(x,y));
+
+            }
+            $('.title').on('click',function() {
+                idx = Number($(this).attr('data-key'))
+                let clat=null;
+                let clng=null;
+                console.log(idx);
+                for(let i=0; i<latlng.length;i++){
+                    if( latlng[i].idx === idx){
+                        clat=latlng[i].shopLat;
+                        clng=latlng[i].shopLong;
+                    }
+                }
+                panTo(clat, clng)
+            })
+
+        }
+
+    }
+    page_load() {
+        // $('.title').on('click',function() {
+        //     //람다는 this 불가
+        //     idx = $(this).attr('data-key')
+        //     axios.get("/getImage", {
+        //         params: { idx: idx },
+        //         responseType :'arraybuffer',
+        //
+        //         headers:{
+        //             //'responseType' : 'blob',
+        //             //'accept':'image/png',
+        //         },//결국 필요 없었음
+        //     }).then((response)=> {
+        //         $('.boardContent').html('');
+        //         $('.boardContent').append('<img id="img1" />');
+        //         //let arrayBufferView = new Uint8Array(response.data);
+        //         let blob = new Blob([response.data], { type: "image/png" });
+        //         document.getElementById("img1").src = window.URL.createObjectURL(blob);
+        //     });
+        // })
+    }
+    nav_down(){
+        let didScroll;
+        let lastScrollTop = 0;
+        let delta = 5;
+        let navbarHeight = $('.header').outerHeight();
+
+        $(window).scroll(function(event){
+            didScroll = true;
+        });
+
+        setInterval(function() {
+            if (didScroll) {
+                hasScrolled();
+                didScroll = false;
+            }
+        }, 250);
+
+        function hasScrolled() {
+            var st = $(this).scrollTop();
+
+            if(Math.abs(lastScrollTop - st) <= delta)
+                return;
+
+            if (st > lastScrollTop && st > navbarHeight){
+                $('header').removeClass('nav-down').addClass('nav-up');
+            } else if(st + $(window).height() < $(document).height()) {
+                $('header').removeClass('nav-up').addClass('nav-down');
+            }
+            lastScrollTop = st;
+        }
+    }
+
+
+
+
+
+
+
+
+    // page_write(){
+    //     $('.btn-write').on('click',function(){
+    //
+    //         axios.get("/boardForm.do", {
+    //
+    //         }).then((response)=> {
+    //             $('.boardContent').html('');
+    //             $('.boardContent').append(response.data);
+    //         });
+    //     })
+    // }
+    page_edit(){
+        $(document).on('click', '.btn-edit', ()=>{
+            console.log("btnactive");
+            axios.get("/boardUpdate.do/", {
+                params: {
+                    idx: idx
+                },
+                headers:["content-type: image/jpeg",
+                    "responseType : arraybuffer"],
+            }).then((response)=> {
+                $('.boardContent').html('');
+                $('.boardContent').append(response.data);
+
+
+            });
+        })
+    }
+    page_edit_submit(){
+        $(document).on('click', '.btn-edit-submit', ()=>{
+            console.log("btnactive");
+            axios.get("/boardInsert.do/", {
+                params: {
+                    title: title,
+                    content: content,
+                    writer: writer
+                }
+            }).then((response)=> {
+                $('.boardContent').html('');
+                $('.boardContent').append(response.data);
+            });
+        })
+    }
+    file_upload(){
+        $(document).on('click', '.btn-edit-submit', ()=> {
+            const formData = new FormData();
+            console.log(formData);
+
+            const file = document.getElementById("files");
+            console.log("file",file);
+            // if(fileList.files.length>0){
+            // }
+            formData.append("file", file.files[0]);
+
+            axios.post("/insertProc", formData, {
+                headers: {"Content-Type": "multipart/form-data"},
+                // contentType: false,
+                // processData: false,
+            }).then((response)=>{
+                $('.boardContent').html('');
+                $('.boardContent').append(response.data);
+            });
+        })
+    }
+    page_delete(){
+        $(document).on('click','.btn-del', ()=>{
+            console.log("btnactive");
+            axios.get("/boardDelete.do", {
+                params: {
+                    idx: idx
+                }
+            }).then(()=> {
+                $('.boardContent').html('');
+            });
+        })
+    }
+    // page_load() {
+    //     console.log('aaaaaaaaaa');
+    //     console.log('ddddddd')
+    //
+    //
+    //     $('.title').on('click',function() {
+    //         //람다는 this 불가
+    //         idx = $(this).attr('data-key')
+    //         axios.get("/getImage", {
+    //             params: { idx: idx },
+    //             responseType :'arraybuffer',
+    //         }).then((response)=> {
+    //             const audioContext = new AudioContext()
+    //             const audioBuffer = audioContext.decodeAudioData(response.data);
+    //             let audioBufferSourceNode = audioContext.createBufferSource();
+    //             audioBufferSourceNode.buffer = audioBuffer;
+    //             let gainNode = new GainNode(audioContext);
+    //             gainNode.gain.value = 0.5;
+    //             audioBufferSourceNode.connect(gainNode).connect(audioContext.destination);
+    //
+    //
+    //             $('.boardContent').html('');
+    //             $('.boardContent').append('<audio src="" ></audio><button data-playing="false" role="switch" aria-checked="false">\n' +
+    //                 '            <span>Play/Pause</span>\n' +
+    //                 '        </button>');
+    //             const audioElement = document.querySelector('audio');
+    //             const track = audioContext.createMediaElementSource(audioElement);
+    //             track.connect(audioContext.destination);
+    //         });
+    //     })
+    // };
+
+
+
+    // audio_test1111(){
+    //
+    //     const myAudio = new Audio();
+    //     myAudio.src = "sound.mp3";
+    //     myAudio.play();
+    //
+    // }
+
+
+
+
+
+
+
+
+
+
+}

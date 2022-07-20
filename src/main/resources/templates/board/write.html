@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/layoutContents.html}">
+<body>
+<th:block layout:fragment="content">
+    <div class="boardContent"></div>
+    <div class="container">
+        <div>
+            <form class="form-horizontal" enctype="multipart/form-data" action="/board/article/ins" method="post">
+                <div class="form-group">
+                    <label class="" for="shopName">가게이름</label>
+                    <div class="">
+                        <input type="text" class="" id="shopName" name="shopName" placeholder="찾기">
+                    </div>
+                    <div class="searchArea">
+                            <div class="item" th:each="vo : ${shopList}">
+                                <span class="icon"></span>
+                                <span class="name">[[${vo.shopName}]]</span>
+                            </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="title"></label>
+                    <div class="">
+                        <input type="text" class="" id="title" name="title" placeholder="title">
+                    </div>
+                </div>
+                <div>
+                    <button type="submit">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,120 @@
+body, html {
+    height: 100%;
+}
+
+body {
+    padding-top: 70px;
+}
+header {
+    z-index:999;
+    position: fixed;
+    top : 0;
+    transition: top 0.3s ease-in-out;
+
+    opacity: 0.9;
+    height: 70px;
+    width: 100%;
+    font-size: 18px;
+}
+.logo{
+    width: 150px;
+}
+.nav-up {
+    top: -70px;
+}
+
+
+.nav-down {
+    display: inline-flex;
+}
+
+nav {
+    background-color: #f8f8f8;
+    width: inherit;
+    box-sizing: border-box;
+    box-shadow: 0 1px 2px hsl(0deg 0% 0% / 5%);
+    padding: 0% 5% 0% 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.serch {
+    box-shadow: none;
+    text-indent: 20px;
+    border: none;
+    width: 200px;
+    height: 70px;
+}
+
+.menu>li {
+    display: inline-block;
+    background-color: transparent;
+    list-style: none;
+    padding: 5px 20px 5px 5px;
+}
+.menu>li>a {
+    color: black;
+    text-decoration: none;
+    font-weight: 700;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+}
+.menu>li>a:hover{
+    font-size: 20px;
+}
+
+.row>div:nth-child(1){
+    overflow: overlay;
+    height: inherit;
+}
+.element::-webkit-scrollbar { width: 0 !important }
+
+.container {
+    height: 85%;
+    width: 100%;
+    padding: 10px 50px 10px 50px;
+
+}
+.footer {
+    background-color: gray;
+    height: 5%
+}
+.boardContent {
+    position:fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-color: white;
+    z-index: 99;
+    box-shadow: 0 1rem 1rem hsl(0 0% 0% / 10%);
+
+}
+.shopCard{
+    overflow:hidden;
+    position:relative;
+    display: inline-block;
+    align-items: center;
+
+    width: 90%;
+    height: 200px;
+    box-shadow: 3px 3px 8px 0px hsl(0deg 0% 83%);
+    background: hsl(0deg 0% 98%);
+    color: hsl(200 50% 20%);
+    line-height: 1.5;
+
+    place-items: center;
+    text-align: center;
+    margin: 20px 0px 20px 0;
+    /*border-radius: 2ch;*/
+    border: 0px solid hsl(0 0% 85%);
+}
+.main_thumb {
+    height: 200px;
+    width: 200px;
+}
+
+.serchArea > .item {
+    display:none;
+}

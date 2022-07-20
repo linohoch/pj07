@@ -1,0 +1,48 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.pj0701.proc.BoardMapper">
+    <select id="testmapper" resultType="com.example.pj0701.vo.ArticleVO">
+        select * from pj1.article;
+    </select>
+
+    <select id="shopInfoListSel" resultType="com.example.pj0701.vo.ShopInfoVO">
+        select * from pj1.shop_info order by shop_name asc;
+
+    </select>
+
+    <insert id="articleIns" parameterType="com.example.pj0701.vo.ArticleVO">
+        INSERT INTO article(
+            shop_no
+            , user_no
+            , title
+            , contents
+        )values(
+             #{shopNo}
+            ,#{userNo}
+            ,#{title}
+            ,#{contents}
+        )
+    </insert>
+
+    <insert id="photoListIns" parameterType="java.util.List" >
+        INSERT INTO photos(
+        article_no
+        , origin_name
+        , upload_name
+        , url
+        , file_size
+        , shop_no
+        ) VALUES
+        <foreach collection="list" item="map" separator=",">
+            (
+            #{map.articleNo}
+            , #{map.originName}
+            , #{map.uploadName}
+            , #{map.url}
+            , #{map.fileSize}
+            , #{map.shopNo}
+            )
+        </foreach>
+    </insert>
+</mapper>

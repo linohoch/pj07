@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<div class="container">
+    <h2><a th:href="@{/}">back</a></h2>
+    <div class="">
+        <div class="">boardContent</div>
+        <div class="">
+            <table>
+                <tr>
+                    <td>번호</td>
+                    <td>[[${vo.articleNo}]]</td>
+                </tr>
+                <tr>
+                    <td>제목</td>
+                    <td>[[${vo.title}]]</td>
+                </tr>
+                <tr>
+                    <td>내용</td>
+                    <td>[[${vo.content}]]</td>
+                </tr>
+                <tr>
+                    <td>작성자</td>
+                    <td>[[${vo.userNo}]]</td>
+                </tr>
+                <tr>
+                    <td>작성일</td>
+                    <td>[[${vo.insDate}]]</td>
+                </tr>
+                <tr>
+                    <td>hit_cnt</td>
+                    <td>[[${vo.hitCnt}]]</td>
+                </tr>
+                <tr>
+                    <td>like_cnt</td>
+                    <td>[[${vo.likeCnt}]]</td>
+                </tr>
+                <tr>
+                    <td>ins_date</td>
+                    <td>[[${vo.insDate}]]</td>
+                </tr>
+                <tr>
+                    <td>shop_no</td>
+                    <td>[[${vo.shopNo}]]</td>
+                </tr>
+                <tr>
+                    <td>shop_name</td>
+                    <td>[[${vo.shopName}]]</td>
+                </tr>
+                <tr>
+                    <td>shop_disc</td>
+                    <td>[[${vo.shopDisc}]]</td>
+                </tr>
+                <tr>
+                    <td>shop_lat</td>
+                    <td>[[${vo.shopLat}]]</td>
+                </tr>
+                <tr>
+                    <td>shop_long</td>
+                    <td>[[${vo.shopLong}]]</td>
+                </tr>
+                <tr>
+                    <td>star</td>
+                    <td>[[${vo.star}]]</td>
+                </tr>
+                <tr>
+                    <td>like_yn</td>
+                    <td>[[${vo.likeYn}]]</td>
+                </tr>
+                <tr>
+                    <td>photo_no</td>
+                    <td>[[${photoNo}]]</td>
+                </tr>
+                <tr>
+                    <td>url</td>
+                    <td>[[${vo.url}]]</td>
+                </tr>
+
+                <tr>
+                    <td colspan="2" align="center">
+                        <button class="btn btn-sm btn-edit">수정</button>
+                        <button class="btn btn-sm btn-del">삭제</button>
+                        <button class="btn btn-sm" onclick="location.href='/boardList'">리스트</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel-footer"></div>
+    </div>
+</div>
