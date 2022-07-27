@@ -31,7 +31,6 @@ public class S3Service {
 
     public List<Map<String, Object>> upload(List<MultipartFile> multipartFileList){
         List<Map<String,Object>> fileInfoList= new ArrayList<>();
-    log.info("S3Service");
 
         multipartFileList.forEach(multipartFile -> {
             if(!Objects.requireNonNull(multipartFile.getContentType()).startsWith("image")){
@@ -58,10 +57,11 @@ public class S3Service {
             Map<String, Object> fileInfoMap= new HashMap<>();
                 fileInfoMap.put("originName", originName);
                 fileInfoMap.put("uploadName", fileName);
-                fileInfoMap.put("size", fileSize);
-                fileInfoMap.put("urlPath", url);
+                fileInfoMap.put("fileSize", fileSize);
+                fileInfoMap.put("url", url);
             fileInfoList.add(fileInfoMap);
         });
+//        log.info("S3 return//{}",fileInfoList);
         return fileInfoList;
     }
     //----------------------------------------------날짜_랜덤-랜덤-랜덤-랜덤_오리진.확장자

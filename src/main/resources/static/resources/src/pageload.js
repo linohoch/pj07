@@ -14,6 +14,8 @@ $(()=>{
 })
 
 export class content_page {
+
+
     constructor() {
         this.page_load();
         // this.page_write();
@@ -24,8 +26,14 @@ export class content_page {
         // this.nav_down();
         this.pic_view();
         this.eventBinding();
+
+        this.select = {
+            submitBtn: '',
+            inputTags: []
+        }
     }
     eventBinding(){
+    //버튼
         $(document).on('click','.write_btn',()=>{
             $('.listWrapper').html(write_tmplt);
         })
@@ -41,32 +49,80 @@ export class content_page {
         //     console.log(httpRequest.status);
         // }
 
-        //서치필터
-        $(document).on('onkeyup','#shopName',(e)=>{
-            let keyword = e.currentTarget.attr('value');
-            this.searchFilter(keyword);
+
+    //글쓰기 페이지
+        //업체 검색 필터
+        $(document).on('keyup','#search',(e)=>{
+            let keyword = e.currentTarget.value.trim();
+            if(keyword.length>0) this.searchFilter(keyword);
         })
-        //필터선택시인풋
+        //필터 선택시 인풋값 변경
         $(document).on('click','.item',(e)=>{
-            let input=document.getElementsByClassName("shopName");
-            input.attr('value',
-            e.currentTarget.getElementsByClassName("name")
-            )
+            let name_input =document.getElementById("shopName");
+                name_input.value= e.currentTarget.innerText;
+                name_input.classList.remove('empty')
+            let no_input = document.getElementById("shopNo")
+                no_input.value= e.currentTarget.getElementsByClassName("name")[0].dataset.no
+                no_input.classList.remove('empty')
         })
+        //파일업로드 썸네일
+        document.getElementById('files')
+                .addEventListener('change',(e)=>{this.setThumbnail(e)})
+        document.onload=()=>{
+            this.select.submitBtn = document.getElementById('submit_btn');
+            this.select.inputTags = document.querySelectorAll('input');
+        }
+        //제출검사
+        document.querySelectorAll('.required').forEach((input)=>{
+                input.classList.add('empty');
+                input.addEventListener('change',(e)=>{
+                    if(e.currentTarget.value.trim().length>0){
+                        e.currentTarget.classList.remove('empty')
+                    }else{
+                        e.currentTarget.classList.add('empty')
+                    }
+                    document.getElementById('submit_btn').disabled
+                        =document.querySelectorAll('.empty').length>0
+                })
+            }
+        )
+
 
     }
     searchFilter(keyword){
-        let items = document.getElementsByClassName("item");
+        let items = document.querySelectorAll(".item");
         items.forEach((item, index, list)=>{
-            let name = item.getElementsByClassName("name");
+            let name = item.getElementsByClassName("name")[0].innerText;
             if(name.indexOf(keyword)>-1){
-                item.attr('display','display');
+                item.classList.remove('hidden');
             }else{
-                item.attr('display','none');
+                item.classList.add('hidden')
             }
         })
     }
-
+    checkImage(img){
+        let arr = ['png','jpg','jpeg'];
+        let extend = img.substring(img.lastIndexOf('.')+1);
+        return arr.indexOf(extend.toLowerCase())>-1;
+    }
+    setThumbnail(e) {
+        document.querySelectorAll('img')
+            .forEach((img)=>{img.parentNode.removeChild(img)});
+        for(let file of e.target.files){
+            console.log("test-",file)
+            if(this.checkImage(file.name)){
+                //
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    let img = document.createElement("img");
+                    img.setAttribute("src", e.target.result);
+                    img.setAttribute("style","max-height:100px");
+                    document.querySelector(".thumb_container").appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }
 
     pic_view(){
 

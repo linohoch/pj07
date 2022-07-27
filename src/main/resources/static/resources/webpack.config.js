@@ -33,7 +33,7 @@ module.exports={
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Development',
+            title: 'Hot Module Replacement',
         }),
         // new webpack.HotModuleReplacementPlugin(),
     ],

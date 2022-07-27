@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -87,8 +88,10 @@ public class CustomUserService implements OAuth2UserService<OAuth2UserRequest, O
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         log.info("loadUserByUsername in CustomUserService");
-        Pj07UserInfoVO userInfoVO = userMapper.selectUserById(userId);
-        //유저가 없으면 낫파운드엑셉션 으로 핸들러로 나가나?
+        Pj07UserInfoVO userInfoVO = new Pj07UserInfoVO();
+        if(userMapper.countUserById(userId)>0)
+            userInfoVO = userMapper.selectUser(userId);
+
         Set<GrantedAuthority> grantedAuthoritySet = new HashSet<>();
 //        if(userInfoVO.getAdminYn .equals("y")){
 //        grantedAuthoritySet.add(new SimpleGrantedAuthority(Role.ADMIN.getCode()));

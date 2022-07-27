@@ -2,6 +2,7 @@ package com.example.pj0701.vo;
 
 import lombok.Data;
 
+
 @Data
 public class ArticleVO {
     private int shopNo;

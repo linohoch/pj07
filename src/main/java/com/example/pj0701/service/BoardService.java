@@ -24,6 +24,7 @@ public class BoardService {
     public List<Object> shopListSel(){
         log.info("board service shoplist");
         return boardMapper.shopInfoListSel_1(1,50,'n','a');
+//        (1,50,'n','a');
     }
 
     public List<ArticleVO> articleListSel(int pageNo, int cntPerPage){
@@ -44,10 +45,22 @@ public class BoardService {
         return boardMapper.commentListSel(articleNo, pageNo, cntPerPage);
     }
 
+
+
     public int articleIns(ArticleVO articleVO){
         return boardMapper.articleIns(articleVO);
     }
 
+    /**
+     * method : articlePhotoIns
+     * author : linohoch
+     * description :
+     * Article photo ins int.
+     * 1.S3 imgList -> articleIns articleNo -> photoIns
+     * @param articleVO the article vo
+     * @param imgList   the img list
+     * @return the int
+     */
     public int articlePhotoIns(ArticleVO articleVO, List<Map<String,Object>> imgList){
         int articleNo = boardMapper.articleIns(articleVO);
         if(articleNo>0){
@@ -57,13 +70,10 @@ public class BoardService {
         }
     }
     public int photoIns(int articleNo, List<Map<String,Object>> imgList) {
+        imgList.forEach(map->{ map.put("articleNo",articleNo);});
         return boardMapper.photoListIns(imgList);
-//        AtomicInteger cnt= new AtomicInteger();
-//        imgList.forEach(map -> {
-//            map.put("articleNo", articleNo);
-//            cnt.addAndGet(boardMapper.imageIns(map));
-//        }); 쿼리로
     }
+
     public int shopInfoIns(ShopInfoVO shopInfoVO){
         return boardMapper.shopInfoIns(shopInfoVO);
     }

@@ -6,6 +6,7 @@ import com.example.pj0701.security.service.UserService;
 import com.example.pj0701.util.CookieUtil;
 import com.example.pj0701.vo.ArticleVO;
 import com.example.pj0701.vo.CommentVO;
+import com.example.pj0701.vo.Pj07UserInfoVO;
 import com.example.pj0701.vo.ShopInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,17 +110,27 @@ public class BoardController {
     }
     //게시글 등록
     @RequestMapping("/ins")
-    public List<String> articleFileInsert(@RequestPart(value="files", required=false) List<MultipartFile> multipartFileList,
-                                            @RequestPart(value="content") ArticleVO articleVO,
+    public String articleFileInsert(@RequestPart(value="files", required=false) List<MultipartFile> multipartFileList,
+                                            @RequestParam HashMap<String,String> param,
                                             HttpServletRequest request)throws IOException {
+        log.info("params//{}", param);
+        //TODO userNo from cookie
+        request.getCookies();
+        //
+        ArticleVO articleVO = new ArticleVO();
+                articleVO.setShopNo(Integer.parseInt(param.get("shopNo")));
+                articleVO.setTitle(param.get("title"));
+                articleVO.setContents(param.get("contents"));
+
         if(!multipartFileList.isEmpty()){
             List<Map<String,Object>> fileList = s3Service.upload(multipartFileList);
             int result = boardService.articlePhotoIns(articleVO, fileList);
+            log.info("photoins//{}", result);
         }else{
             boardService.articleIns(articleVO);
         }
 
-        return null;
+        return "redirect:/";
     }
 
 

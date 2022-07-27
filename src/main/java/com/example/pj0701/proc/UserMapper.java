@@ -13,12 +13,15 @@ public interface UserMapper {
     test
      */
     List<Pj07UserInfoVO> selectAll();
-
+    @ResultMap({"ResultMap.Pj07UserInfoVO"})
+    @Select("select * from user_sign where user_id=#{userId}")
+    Pj07UserInfoVO selectUser(String userId);
     /*
     아이디 중복체크용 조회
      */
-    @Select("select * from user_sign where user_id=#{userId}")
-    Pj07UserInfoVO selectUser(String userId);
+    @ResultMap("ResultMap.integer")
+    @Select("select count(*) from user_sign where user_id=#{userId}")
+    int countUserById(String userId);
     /**
      * method : selectUserById
      * author : linohoch
@@ -57,7 +60,8 @@ public interface UserMapper {
      * @param pj07UserInfoVO the pj 07 user info vo
      * @return the int
      */
-    @Select("CALL user_signup_ins(#{userId},#{firstName},#{lastName},#{userBirthDate},#{userSex},#{ipAddress},#{userPw})")
+    @ResultMap("ResultMap.integer")
+    @Select("CALL user_signup_ins(#{userId},#{firstName},#{lastName},#{userBirthDate},#{userSex},#{ipAddress},#{pw})")
     int createUser(Pj07UserInfoVO pj07UserInfoVO);
 
     /**

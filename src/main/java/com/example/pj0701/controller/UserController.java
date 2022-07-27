@@ -36,6 +36,11 @@ public class UserController {
         log.info("/auth/loginForm");
         return "auth/login";
     }
+    @RequestMapping("/signupForm")
+    public String toSignupForm(){
+        log.info("/auth/signupForm");
+        return "auth/signup";
+    }
 
     //----------------------------
 
@@ -49,8 +54,8 @@ public class UserController {
         return ResponseEntity.status(204).build();
     }
     //회원등록
-    @PostMapping("/signup")
-    public ResponseEntity<?> createUser(@RequestBody Pj07UserInfoVO pj07UserInfoVO){
+    @PostMapping("/signup")//폼테스트
+    public ResponseEntity<?> createUser(Pj07UserInfoVO pj07UserInfoVO){
         String encoded_pw=passwordEncoder.encode(pj07UserInfoVO.getPw());
         pj07UserInfoVO.setPw(encoded_pw);
         pj07UserInfoVO.setPwEncryptYn("y");

@@ -9,27 +9,47 @@
     <div class="boardContent"></div>
     <div class="container">
         <div>
-            <form class="form-horizontal" enctype="multipart/form-data" action="/board/article/ins" method="post">
+                    <div class="">
+                        <input type="text" class="" id="search" placeholder="찾기"/>
+                    </div>
+                    <br>
+            <form class="form-horizontal" enctype="multipart/form-data" action="/board/ins" method="post">
                 <div class="form-group">
                     <label class="" for="shopName">가게이름</label>
                     <div class="">
-                        <input type="text" class="" id="shopName" name="shopName" placeholder="찾기">
+                        <input type="text" class="required" id="shopName" name="shopName" readonly/>
+                    </div>
+                    <div class="">
+                        <input type="hidden" class="required" id="shopNo" name="shopNo">
                     </div>
                     <div class="searchArea">
-                            <div class="item" th:each="vo : ${shopList}">
+                            <div class="item hidden" th:each="vo : ${shopList}">
                                 <span class="icon"></span>
-                                <span class="name">[[${vo.shopName}]]</span>
+                                <span class="name" th:data-no="${vo.shopNo}">[[${vo.shopName}]]</span>
                             </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="title"></label>
                     <div class="">
-                        <input type="text" class="" id="title" name="title" placeholder="title">
+                        <input type="text" class="required" id="title" name="title" placeholder="title">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="contents"></label>
+                    <div class="">
+                        <textarea class="required" id="contents" name="contents" placeholder="contents"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="files"></label>
+                    <div class="">
+                        <input type="file" class="" id="files" name="files" multiple>
+                    </div>
+                    <div class="thumb_container" style="width:100px"></div>
+                </div>
                 <div>
-                    <button type="submit">등록</button>
+                    <button id="submit_btn" type="submit" disabled="disabled">등록</button>
                 </div>
             </form>
         </div>

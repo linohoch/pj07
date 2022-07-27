@@ -5,13 +5,18 @@
     <select id="testmapper" resultType="com.example.pj0701.vo.ArticleVO">
         select * from pj1.article;
     </select>
-
+    <select id="test1" resultType="com.example.pj0701.vo.ShopInfoVO">
+        select *
+        from pj1.shop_info;
+    </select>
+    
+    
     <select id="shopInfoListSel" resultType="com.example.pj0701.vo.ShopInfoVO">
         select * from pj1.shop_info order by shop_name asc;
 
     </select>
 
-    <insert id="articleIns" parameterType="com.example.pj0701.vo.ArticleVO">
+    <insert id="articleIns1" parameterType="com.example.pj0701.vo.ArticleVO">
         INSERT INTO article(
             shop_no
             , user_no
@@ -23,6 +28,9 @@
             ,#{title}
             ,#{contents}
         )
+        <selectKey keyProperty="articleNo" resultType="Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
     </insert>
 
     <insert id="photoListIns" parameterType="java.util.List" >

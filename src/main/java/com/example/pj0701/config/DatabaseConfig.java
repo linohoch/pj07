@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,11 @@ public class DatabaseConfig extends HikariConfig {
         sqlSessionFactoryBean.setDataSource(dataSource);
         sqlSessionFactoryBean.setMapperLocations((new PathMatchingResourcePatternResolver().getResources(mapperLocation)));
         return sqlSessionFactoryBean.getObject();
+    }
+    @Bean
+    public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
+        sqlSessionFactory.getConfiguration().setMapUnderscoreToCamelCase(true);
+        return new SqlSessionTemplate(sqlSessionFactory);
     }
 
 

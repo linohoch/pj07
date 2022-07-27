@@ -115,6 +115,4 @@ nav {
     width: 200px;
 }
 
-.serchArea > .item {
-    display:none;
-}
+.hidden {display: none;}

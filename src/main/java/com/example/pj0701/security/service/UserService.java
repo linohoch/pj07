@@ -22,14 +22,15 @@ public class UserService{//기존의것
 
         String userId = pj07UserInfoVO.getUserId();
 
-        if(userMapper.selectUser(userId)!=null){
+        if(userMapper.countUserById(userId)>0){
             log.warn("already exist id");
         }else{
             int userNo=userMapper.createUser(pj07UserInfoVO);
+            log.info("create_user//{}",userNo);
             return pj07UserInfoVO;
         }
         return null;
-    };
+    }
 
     public boolean findById(String id){
         return userMapper.selectUser(id) != null;

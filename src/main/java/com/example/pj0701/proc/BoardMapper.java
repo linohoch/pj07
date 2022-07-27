@@ -1,9 +1,6 @@
 package com.example.pj0701.proc;
 
-import com.example.pj0701.vo.CommentVO;
-import com.example.pj0701.vo.PhotoVO;
-import com.example.pj0701.vo.ShopInfoVO;
-import com.example.pj0701.vo.ArticleVO;
+import com.example.pj0701.vo.*;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -15,7 +12,6 @@ public interface BoardMapper {
     @ResultMap({"ResultMap.ArticleVO"})
     @Select("CALL pj1.p_test_grant()")
     List<ArticleVO> testproc();
-
 
     //업체등록,수정,삭제
     @Select("CAll pj1.p_shopInfo_ins(#{shopName},#{shopDisc},#{shopLat},#{shopLong},#{rpstPhoto},#{userNo},#{chrgrNo})")
@@ -80,6 +76,8 @@ public interface BoardMapper {
     //-------------------------------------------------------------
 
     //게시글등록
+    @ResultMap("ResultMap.integer")
+    @Select("CALL pj1.p_article_ins(#{shopNo},#{userNo},#{title},#{contents})")
     int articleIns(ArticleVO articleVO);
     //첨부파일업로드
     int photoListIns(List<Map<String, Object>> imageInfoList);
