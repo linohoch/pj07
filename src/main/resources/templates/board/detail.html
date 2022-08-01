@@ -1,84 +1,97 @@
 <!DOCTYPE html>
-<div class="container">
-    <h2><a th:href="@{/}">back</a></h2>
-    <div class="">
-        <div class="">boardContent</div>
-        <div class="">
-            <table>
-                <tr>
-                    <td>번호</td>
-                    <td>[[${vo.articleNo}]]</td>
-                </tr>
-                <tr>
-                    <td>제목</td>
-                    <td>[[${vo.title}]]</td>
-                </tr>
-                <tr>
-                    <td>내용</td>
-                    <td>[[${vo.content}]]</td>
-                </tr>
-                <tr>
-                    <td>작성자</td>
-                    <td>[[${vo.userNo}]]</td>
-                </tr>
-                <tr>
-                    <td>작성일</td>
-                    <td>[[${vo.insDate}]]</td>
-                </tr>
-                <tr>
-                    <td>hit_cnt</td>
-                    <td>[[${vo.hitCnt}]]</td>
-                </tr>
-                <tr>
-                    <td>like_cnt</td>
-                    <td>[[${vo.likeCnt}]]</td>
-                </tr>
-                <tr>
-                    <td>shop_no</td>
-                    <td>[[${vo.shopNo}]]</td>
-                </tr>
-                <tr>
-                    <td>shop_name</td>
-                    <td>[[${vo.shopName}]]</td>
-                </tr>
-                <tr>
-                    <td>shop_disc</td>
-                    <td>[[${vo.shopDisc}]]</td>
-                </tr>
-                <tr>
-                    <td>shop_lat</td>
-                    <td>[[${vo.shopLat}]]</td>
-                </tr>
-                <tr>
-                    <td>shop_long</td>
-                    <td>[[${vo.shopLong}]]</td>
-                </tr>
-                <tr>
-                    <td>star</td>
-                    <td>[[${vo.star}]]</td>
-                </tr>
-                <tr>
-                    <td>like_yn</td>
-                    <td>[[${vo.likeYn}]]</td>
-                </tr>
-                <tr>
-                    <td>photo_no</td>
-                    <td>[[${photoNo}]]</td>
-                </tr>
-                <tr>
-                    <td>url</td>
-                    <td>[[${vo.url}]]</td>
-                </tr>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/layoutContents.html}">
 
-                <tr>
-                    <td colspan="2" align="center">
-                        <button class="btn btn-sm btn-edit">수정</button>
-                        <button class="btn btn-sm btn-del">삭제</button>
-                        <button class="btn btn-sm" onclick="location.href='/boardList'">리스트</button>
-                    </td>
-                </tr>
-            </table>
+<th:block layout:fragment="content">
+    <div class="container">
+        <div class="">
+            <div class="">article detail page</div>
+                <div class="contents_wrapper">
+                    <div class="article_container">
+                        <div class="title_area">
+                            <div>No.[[${contents.articleNo}]]</div>
+                            <div>제목[[${contents.title}]]</div>
+                            <div>[[${contents.insDate}]]</div>
+                        </div>
+                        <div class="sub_area">
+                            <div>작성자[[${contents.userNo}]]</div>
+                            <div>
+                                <div>hit_cnt[[${contents.hitCnt}]]</div>
+                                <div>like_cnt[[${contents.likeCnt}]]</div>
+                            </div>
+                        </div>
+                        <div class="article_area">
+                            <div>내용[[${contents.contents}]]</div>
+                        </div>
+                        <div class="bottom_area">
+                            <div>shop_no[[${contents.shopNo}]]</div>
+                        </div>
+                        <div>
+                            <div>photo_no[[${contents.photoNo}]]</div>
+                        </div>
+                        <div class="photo_container">
+                            <img th:src="${contents.url}" width="100px" alt="userphoto"/>
+                        </div>
+
+                        <div>
+                            <div class="comment_textarea_wrapper">
+                                <th:block th:unless="${isLogin}">
+                                    <textarea class="comment_textarea" placeholder="댓글을 작성하려면 로그인하세요"></textarea>
+                                </th:block>
+                                <th:block th:if="${isLogin}">
+                                    <textarea class="comment_textarea"></textarea>
+                                </th:block>
+                                <button th:data-article-no="${contents.articleNo}"
+                                        th:disabled="${!isLogin}"
+                                        class="lv1_comment_btn">comment
+                                </button>
+                            </div>
+                            <div>댓글[[${cnt}]]</div>
+                        </div>
+                    </div>
+                <th:block th:if="${#lists.size(comment)}>0">
+                    <div class="comment_list_container">
+                        <div class="comment unselected"
+                             th:each="vo : ${comment}"
+                             th:classappend="|level${vo.lv}|">
+                            <div class="comment_contents">
+                                <div>No[[${vo.commentNo}]]</div>
+                                <div>user_no [[${vo.userNo}]]</div>
+                                <div>contents [[${vo.contents}]]</div>
+                                <div>test now
+                                    [[${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}]]
+                                </div>
+                                <div>ins_date [[${vo.insDate}]]</div>
+                            </div>
+                            <div class="comment_textarea_wrapper">
+                                <th:block th:unless="${isLogin}">
+                                    <textarea class="comment_textarea" placeholder="댓글을 작성하려면 로그인하세요"></textarea>
+                                </th:block>
+                                <th:block th:if="${isLogin}">
+                                    <textarea class="comment_textarea"></textarea>
+                                </th:block>
+                                <button th:data-article-no="${vo.articleNo}"
+                                        th:data-grp="${vo.grp}"
+                                        th:data-seq="${vo.seq}"
+                                        th:data-lv="${vo.lv}"
+                                        th:data-comment-no="${vo.commentNo}"
+                                        th:data-parent-no="${vo.parentNo}"
+                                        class="comment_btn">comment</button>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <th:block th:unless="${#lists.size(comment)}>0">
+                    <div>
+                        댓글이 없다
+                    </div>
+                </th:block>
+                <div class="panel-footer"></div>
+            </div>
         </div>
-        <div class="panel-footer"></div>
     </div>
-</div>
+</th:block>
+</html>

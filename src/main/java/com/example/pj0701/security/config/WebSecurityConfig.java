@@ -1,29 +1,37 @@
 package com.example.pj0701.security.config;
 
 import com.example.pj0701.security.handler.BasicSuccessHandler;
+import com.example.pj0701.security.handler.CustomLogoutHandler;
 import com.example.pj0701.security.handler.OAuth2FailureHandler;
 import com.example.pj0701.security.handler.OAuth2SuccessHandler;
 import com.example.pj0701.security.service.BasicAuthenticationProvider;
 import com.example.pj0701.security.service.CustomUserService;
 import com.example.pj0701.security.jwt.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import lombok.RequiredArgsConstructor;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -42,6 +50,7 @@ public class WebSecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final BasicSuccessHandler basicSuccessHandler;
+    private final CustomLogoutHandler customLogoutHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
@@ -83,7 +92,7 @@ public class WebSecurityConfig {
                 .usernameParameter("userId")
                 .passwordParameter("pw")
                 .loginProcessingUrl("/auth2/login") //액션url
-                .defaultSuccessUrl("/",false)
+//                .defaultSuccessUrl("/",false)
                 .failureUrl("/auth/loginForm")
                 .successHandler(basicSuccessHandler)
 //                .successHandler((request, response, authentication) -> response.sendRedirect("/"))
@@ -93,9 +102,9 @@ public class WebSecurityConfig {
 //                })
             .and()
                 .logout()
-                .logoutUrl("/logout") //액션url
+                .logoutUrl("/auth/logout") //액션url
+                .addLogoutHandler(customLogoutHandler)
                 .logoutSuccessUrl("/")
-
 
         // OAuth2
             .and()

@@ -1,21 +1,34 @@
 package com.example.pj0701.util;
 
+import com.example.pj0701.vo.CookieVO;
 import org.springframework.util.SerializationUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
+import java.lang.reflect.Field;
 import java.util.Base64;
-import java.util.Optional;
+
 
 public class CookieUtil {
-    public static String getCookie(HttpServletRequest request, String name) {
+
+//    public static CookieVO getCookieVO(HttpServletRequest request) throws IllegalAccessException {
+//        Field[] fields =CookieVO.class.getDeclaredFields();
+//        CookieVO cookieVO = new CookieVO();
+//        for(Field field : fields){
+//            field.setAccessible(true);
+//            field.set(cookieVO,getCookieValue(request, field.getName()));
+//        }
+//        return cookieVO;
+//    }
+
+    public static String getCookieValue(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null && cookies.length > 0) {
             for (Cookie cookie : cookies) {
                 if (name.equals(cookie.getName())) {
-                    return cookie.toString();
+                    return cookie.getValue();
                 }
             }
         }

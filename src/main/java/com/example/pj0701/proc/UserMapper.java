@@ -145,14 +145,16 @@ public interface UserMapper {
      * description :
      * Insert refresh token.
      *
-     * user_no가 아직 안들어가는데 일단 나중에 생각...
      * @param userId       the user id
      * @param provider     the provider
      * @param refreshToken the refresh token
      * @param expDate      the exp date
      */
-    @Insert("insert into pj1.social_token(social_id, provider, refresh_token, exp_date) values(#{userId},#{provider},#{refreshToken},#{expDate})")
+//    @Insert("insert into pj1.social_token(social_id, provider, refresh_token, exp_date) values(#{userId},#{provider},#{refreshToken},#{expDate})")
+//    void insertRefreshToken(String userId, String provider,String refreshToken, String expDate);
+    @Insert("CALL pj1.p_refresh_token_ins(#{userId},#{provider},#{refreshToken},#{expDate})")
     void insertRefreshToken(String userId, String provider,String refreshToken, String expDate);
 
-
+    @Delete("CALL pj1.p_invalidate_refresh_token_del(#{userNo})")
+    void deleteRefreshToken(int userNo);
 }

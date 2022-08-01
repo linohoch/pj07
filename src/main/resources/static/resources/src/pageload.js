@@ -8,6 +8,7 @@ const $ = require("jquery");
 const cors = require('cors');
 let idx = null;
 let latlng = null;
+const COMMENT_URL='/board/comment/ins';
 
 $(()=>{
     new content_page();
@@ -42,87 +43,60 @@ export class content_page {
             // let wrapper=document.getElementsByClassName('.listWrapper')
             $('.listWrapper').html(tmplt);
         })
-        let httpRequest = new XMLHttpRequest()
-        // if(httpRequest.status===200){
-        console.log(httpRequest.getResponseHeader("access_token"));
-        // }else{
-        //     console.log(httpRequest.status);
-        // }
-
-
-    //글쓰기 페이지
-        //업체 검색 필터
-        $(document).on('keyup','#search',(e)=>{
-            let keyword = e.currentTarget.value.trim();
-            if(keyword.length>0) this.searchFilter(keyword);
+        document.querySelector('.logout_btn').addEventListener('click',()=>{
+            // document.cookie = "max-age:0;"
+            // axios.post('/logout')
         })
-        //필터 선택시 인풋값 변경
-        $(document).on('click','.item',(e)=>{
-            let name_input =document.getElementById("shopName");
-                name_input.value= e.currentTarget.innerText;
-                name_input.classList.remove('empty')
-            let no_input = document.getElementById("shopNo")
-                no_input.value= e.currentTarget.getElementsByClassName("name")[0].dataset.no
-                no_input.classList.remove('empty')
-        })
-        //파일업로드 썸네일
-        document.getElementById('files')
-                .addEventListener('change',(e)=>{this.setThumbnail(e)})
-        document.onload=()=>{
-            this.select.submitBtn = document.getElementById('submit_btn');
-            this.select.inputTags = document.querySelectorAll('input');
-        }
-        //제출검사
-        document.querySelectorAll('.required').forEach((input)=>{
-                input.classList.add('empty');
-                input.addEventListener('change',(e)=>{
-                    if(e.currentTarget.value.trim().length>0){
-                        e.currentTarget.classList.remove('empty')
-                    }else{
-                        e.currentTarget.classList.add('empty')
-                    }
-                    document.getElementById('submit_btn').disabled
-                        =document.querySelectorAll('.empty').length>0
-                })
-            }
-        )
 
+        //shopCard를 article로 임시로 쓰는 중
+        //게시글클릭
+        document.querySelectorAll('.shopCard').forEach((el)=>{
+            el.addEventListener('click',(ev)=>{
+                let articleNo = ev.currentTarget.querySelector('.title').dataset.key
+                let url =`/board/article/${articleNo}`
+                window.location.href=url;
+            })
+        })
+        //게시글댓글
+        document.querySelector('.lv1_comment_btn').addEventListener('click',(e)=>{
+            const data={}
+            data.articleNo =e.currentTarget.dataset.articleNo;
+            data.contents  =e.currentTarget.previousElementSibling.value.trim();
+            this.insertComment(data)
+
+        })
+        //대댓글
+        document.querySelectorAll('.comment_contents').forEach((el)=>{
+            el.addEventListener('click',(e)=>{
+                let elClass = e.currentTarget.parentElement.classList
+                console.log(e.currentTarget.parentElement)
+                let selected =elClass.contains('unselected')
+                console.log(selected)
+                document.querySelectorAll('.selected')
+                    .forEach(el=>el.classList.replace('selected', 'unselected'))
+                if(selected){elClass.replace('unselected','selected')}
+            })
+        })
+        document.querySelectorAll('.comment_btn').forEach((el)=>{
+            el.addEventListener('click',(e)=>{
+                const data=e.currentTarget.dataset
+                data.contents=e.currentTarget.parentElement.getElementsByClassName('comment_textarea')[0].value.trim()
+
+                console.log(data)
+                this.insertComment(data);
+            });
+        })
 
     }
-    searchFilter(keyword){
-        let items = document.querySelectorAll(".item");
-        items.forEach((item, index, list)=>{
-            let name = item.getElementsByClassName("name")[0].innerText;
-            if(name.indexOf(keyword)>-1){
-                item.classList.remove('hidden');
-            }else{
-                item.classList.add('hidden')
-            }
-        })
+    insertComment(data){
+        axios.post(COMMENT_URL, JSON.stringify(data), {headers: {"Content-Type": `application/json`},})
+            .then(res=>{
+                //TODO 댓글 영역만 리로딩
+                console.log(res)
+                window.location.reload();
+            })
     }
-    checkImage(img){
-        let arr = ['png','jpg','jpeg'];
-        let extend = img.substring(img.lastIndexOf('.')+1);
-        return arr.indexOf(extend.toLowerCase())>-1;
-    }
-    setThumbnail(e) {
-        document.querySelectorAll('img')
-            .forEach((img)=>{img.parentNode.removeChild(img)});
-        for(let file of e.target.files){
-            console.log("test-",file)
-            if(this.checkImage(file.name)){
-                //
-                let reader = new FileReader();
-                reader.onload = function (e) {
-                    let img = document.createElement("img");
-                    img.setAttribute("src", e.target.result);
-                    img.setAttribute("style","max-height:100px");
-                    document.querySelector(".thumb_container").appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-    }
+
 
     pic_view(){
 

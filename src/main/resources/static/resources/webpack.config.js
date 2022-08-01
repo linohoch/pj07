@@ -10,9 +10,13 @@ module.exports={
             './src/index.js',
             './src/pageload.js'
         ],
+        write: [
+            './src/write.js'
+        ],
         sign: [
             './src/auth/sign.js'
         ]
+
 
     },
     output: {

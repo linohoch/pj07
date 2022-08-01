@@ -5,24 +5,27 @@
         xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
         layout:decorate="~{layouts/layoutContents.html}">
 <body>
+<th:block layout:fragment="script">
+    <script th:src="@{../resources/dist/write.bundle.js}"></script>
+</th:block>
 <th:block layout:fragment="content">
     <div class="boardContent"></div>
     <div class="container">
-        <div>
+        <div class="">
                     <div class="">
-                        <input type="text" class="" id="search" placeholder="찾기"/>
+                        <input type="text" class="" id="search" placeholder="이름으로 찾기"/>
                     </div>
                     <br>
             <form class="form-horizontal" enctype="multipart/form-data" action="/board/ins" method="post">
                 <div class="form-group">
-                    <label class="" for="shopName">가게이름</label>
+                    <label class="" for="shopName">가게</label>
                     <div class="">
                         <input type="text" class="required" id="shopName" name="shopName" readonly/>
                     </div>
                     <div class="">
                         <input type="hidden" class="required" id="shopNo" name="shopNo">
                     </div>
-                    <div class="searchArea">
+                    <div class="search_area">
                             <div class="item hidden" th:each="vo : ${shopList}">
                                 <span class="icon"></span>
                                 <span class="name" th:data-no="${vo.shopNo}">[[${vo.shopName}]]</span>
@@ -31,14 +34,14 @@
                 </div>
                 <div class="form-group">
                     <label for="title"></label>
-                    <div class="">
+                    <div class="input_wrapper">
                         <input type="text" class="required" id="title" name="title" placeholder="title">
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group article_area">
                     <label for="contents"></label>
-                    <div class="">
-                        <textarea class="required" id="contents" name="contents" placeholder="contents"></textarea>
+                    <div class="input_wrapper">
+                        <textarea class="required contents_textarea" id="contents" name="contents" placeholder="contents"></textarea>
                     </div>
                 </div>
                 <div class="form-group">

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.events.Comment;
 import java.io.IOException;
 import java.net.HttpCookie;
@@ -36,14 +37,19 @@ public class BoardController {
 
     @ResponseBody
     @RequestMapping("/test")
-    public List<Object> test (){
-        return boardService.shopListSel();
-    }
+    public List<Object> test (){return boardService.shopListSel();}
 
+    private void isLogin(HttpServletRequest request, Model model){
+        model.addAttribute("isLogin",!CookieUtil.getCookieValue(request, "userNo").isEmpty());
+    }
 //pageAct
     //메인리스트
     @RequestMapping("/list")
-    public String boardList(@RequestParam(value = "pageNo", required = false) Integer pageNo, Model model){
+    public String boardList(@RequestParam(value = "pageNo", required = false) Integer pageNo, Model model,
+                            HttpServletRequest request){
+
+        isLogin(request, model);
+
         if(pageNo==null){pageNo=1;}
         List<ArticleVO> list = boardService.articleListSel(1, 10);
         model.addAttribute("list", list);
@@ -51,36 +57,45 @@ public class BoardController {
     }
     //쓰기페이지
     @RequestMapping("/writeForm")
-    public String writeForm(Model model){
+    public String writeForm(HttpServletRequest request, Model model){
+        isLogin(request, model);
         //user_no
         List<Object> list = boardService.shopListSel();
         model.addAttribute("shopList", list);
         return "board/write";
     }
     //게시글내용
+//    @ResponseBody
     @RequestMapping("/article/{articleNo}")
     public String getArticleDetail (@PathVariable int articleNo,
-                                    HttpServletRequest request,
-                                    Model model) {
-        int userNo = Integer.parseInt(CookieUtil.getCookie(request, "userNo"));
+                                                 HttpServletRequest request,
+                                                 Model model) {
+        isLogin(request, model);
+        int userNo = Integer.parseInt(CookieUtil.getCookieValue(request, "userNo"));
         model.addAttribute("contents",
             boardService.articleDetailSel(articleNo, userNo));
-        model.addAttribute("comment",
-            boardService.commentListSel(articleNo, 1, 50));
+        List<Object> list=boardService.commentListSel(articleNo, 1, 50);
+        log.info(String.valueOf(list));
+        model.addAttribute("cnt", list.get(0));
+        model.addAttribute("comment",list.get(1));
         return "board/detail";
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("contents",boardService.articleDetailSel(articleNo, userNo));
+//        map.put("comment", boardService.commentListSel(articleNo, 1, 50));
+//        return map;
     }
 
 //data
 
     //댓글목록
-    @ResponseBody
-    @RequestMapping("/data/commentList")
-    public List<CommentVO> getCommentList (@RequestBody HashMap<String,Integer> params){
-        int articleNo = params.get("articleNo");
-        int pageNo = params.get("pageNo");
-        int cntPerPage = params.get("cntPerPage");
-        return boardService.commentListSel(articleNo, pageNo, cntPerPage);
-    }
+//    @ResponseBody
+//    @RequestMapping("/data/commentList")
+//    public List<CommentVO> getCommentList (@RequestBody HashMap<String,Integer> params){
+//        int articleNo = params.get("articleNo");
+//        int pageNo = params.get("pageNo");
+//        int cntPerPage = params.get("cntPerPage");
+//        return boardService.commentListSel(articleNo, pageNo, cntPerPage);
+//    }
 
 //    @RequestMapping("/shop/list")
 //    @ResponseBody
@@ -115,12 +130,13 @@ public class BoardController {
                                             HttpServletRequest request)throws IOException {
         log.info("params//{}", param);
         //TODO userNo from cookie
-        request.getCookies();
+        int userNo=Integer.parseInt(CookieUtil.getCookieValue(request,"userNo"));
         //
         ArticleVO articleVO = new ArticleVO();
                 articleVO.setShopNo(Integer.parseInt(param.get("shopNo")));
                 articleVO.setTitle(param.get("title"));
                 articleVO.setContents(param.get("contents"));
+                articleVO.setUserNo(userNo);
 
         if(!multipartFileList.isEmpty()){
             List<Map<String,Object>> fileList = s3Service.upload(multipartFileList);
@@ -131,6 +147,18 @@ public class BoardController {
         }
 
         return "redirect:/";
+    }
+    //댓글 등록
+    @ResponseBody
+    @RequestMapping("/comment/ins")
+    public List<CommentVO> commentInsert(@RequestBody CommentVO commentVO,
+                                         HttpServletRequest request,
+                                         HttpServletResponse response) throws IOException {
+        int userNo = Integer.parseInt(CookieUtil.getCookieValue(request, "userNo"));
+        commentVO.setUserNo(userNo);
+        boardService.commentIns(commentVO);
+        return null;
+//        return boardService.commentListSel(articleNo, 1, 50);
     }
 
 

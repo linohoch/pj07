@@ -1,6 +1,7 @@
 package com.example.pj0701.security.service;
 
 import com.example.pj0701.proc.UserMapper;
+import com.example.pj0701.security.userInfo.AuthUserInfo;
 import com.example.pj0701.security.userInfo.OAuth2Attributes;
 import com.example.pj0701.security.userInfo.Role;
 import com.example.pj0701.vo.Pj07UserInfoVO;
@@ -86,7 +87,7 @@ public class CustomUserService implements OAuth2UserService<OAuth2UserRequest, O
 
     //일반로그인
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+    public AuthUserInfo loadUserByUsername(String userId) throws UsernameNotFoundException {
         log.info("loadUserByUsername in CustomUserService");
         Pj07UserInfoVO userInfoVO = new Pj07UserInfoVO();
         if(userMapper.countUserById(userId)>0)
@@ -97,9 +98,20 @@ public class CustomUserService implements OAuth2UserService<OAuth2UserRequest, O
 //        grantedAuthoritySet.add(new SimpleGrantedAuthority(Role.ADMIN.getCode()));
 //          }
         grantedAuthoritySet.add(new SimpleGrantedAuthority(Role.MEMBER.getCode()));
-        return new User(userInfoVO.getUserId(),
-                        userInfoVO.getPw(),
-                        grantedAuthoritySet);
+//        return new User(userInfoVO.getUserId(),
+//                        userInfoVO.getPw(),
+//                        grantedAuthoritySet);
+        return AuthUserInfo.builder()
+                .userNo(userInfoVO.getUserNo())
+                .username(userInfoVO.getUserId())
+                .password(userInfoVO.getPw())
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .credentialsNonExpired(true)
+                .enabled(true)
+                .authorities(grantedAuthoritySet)
+                .build();
+
         //--> provider
     }
 }

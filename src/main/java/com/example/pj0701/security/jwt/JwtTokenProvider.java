@@ -27,6 +27,8 @@ import java.util.Map;
 public class JwtTokenProvider {
 
 
+    public static final int ACCESS_AGE = 1000 * 60 * 60; //1시간;
+    public static final int REFRESH_AGE = 1000 * 60 * 60 * 24 * 7; //7일
     private final UserMapper userMapper;
     private final CustomUserService customUserService;
 
@@ -34,6 +36,7 @@ public class JwtTokenProvider {
     private String ACCESS_SECRET_KEY;
     @Value("{jwt.refresh}")
     private String REFRESH_SECRET_KEY;
+
     @PostConstruct
     protected void init(){
         ACCESS_SECRET_KEY= Base64.getEncoder().encodeToString(ACCESS_SECRET_KEY.getBytes(StandardCharsets.UTF_8));
@@ -42,8 +45,10 @@ public class JwtTokenProvider {
 
     //토큰 둘 다 발행
     public Map<String, String> createTokens(String provider, String userId){
-        Date expiryDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
-        Date refreshExDate = Date.from(Instant.now().plus(7, ChronoUnit.DAYS));
+        Date expiryDate = new Date(System.currentTimeMillis()+ACCESS_AGE);
+        Date refreshExDate = new Date(System.currentTimeMillis()+REFRESH_AGE);
+//        Date expiryDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
+//        Date refreshExDate = Date.from(Instant.now().plus(7, ChronoUnit.DAYS));
         Map<String, String> tokens = new HashMap<>();
         log.info("create token ... expiry//{}",expiryDate);
         Claims claims = Jwts.claims().setSubject(userId);//sub = email = userId
@@ -56,6 +61,7 @@ public class JwtTokenProvider {
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, ACCESS_SECRET_KEY)
                 .compact());
+
         String refreshToken = Jwts.builder()
                         .setClaims(claims)
                         .setIssuer("pj07")
@@ -152,6 +158,10 @@ public class JwtTokenProvider {
             return new UsernamePasswordAuthenticationToken(userDetails,
                                                  null,
                                                            userDetails.getAuthorities());
+    }
+    //DB 토큰 삭제
+    public void invalidateRefreshToken(int userNo){
+        userMapper.deleteRefreshToken(userNo);
     }
 
 

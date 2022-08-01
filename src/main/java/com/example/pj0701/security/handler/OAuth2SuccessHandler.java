@@ -60,7 +60,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             log.info("timestamp");
             userMapper.updateLoginTimestamp(DBUser.getUserNo());
     //2.토큰처리
-//        if(firstVisit){
+//        if(firstVisit){  userNo도 넣자.
             Map<String,String> tokens = jwtTokenProvider.createTokens(oAuth2User.getProvider(), oAuth2User.getEmail());
             response.setHeader("access_token", tokens.get("accessToken"));
             response.setHeader("refresh_token", tokens.get("refreshToken"));

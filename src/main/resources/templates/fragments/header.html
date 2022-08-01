@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:th="http://www.thymeleaf.org">
 <header class="nav-down header">
     <nav id="gnb">
         <div class="logo">
@@ -11,10 +14,15 @@
         </div>
 
         <div class="menu">
-            <li><a href="/board/writeForm">쓰기</a></li>
-            <li><a class="addShop_btn">샵추가</a></li>
-            <li><a href="/oauth2/authorization/google">구글로그인</a></li>
-            <li><a href="/auth/loginForm">그냥로그인</a></li>
+                <li><a href="/board/writeForm">쓰기</a></li>
+            <th:block th:if="${isLogin}">
+                <li><a class="addShop_btn">샵추가</a></li>
+                <li><a href="/auth/logout" class="logout_btn">로그아웃</a></li>
+            </th:block>
+            <th:block th:unless="${isLogin}">
+                <li><a href="/oauth2/authorization/google">구글로그인</a></li>
+                <li><a href="/auth/loginForm">그냥로그인</a></li>
+            </th:block>
 <!--            <li><a href="/">메뉴</a></li>-->
 <!--            <li><a href="/">마이페이지</a></li>-->
         </div>

@@ -5,7 +5,6 @@ import com.example.pj0701.vo.ArticleVO;
 import com.example.pj0701.vo.CommentVO;
 import com.example.pj0701.vo.ShopInfoVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -38,14 +37,16 @@ public class BoardService {
 
 
 
-    public List<ArticleVO> articleDetailSel(int articleNo, int userNo){
+    public ArticleVO articleDetailSel(int articleNo, int userNo){
         return boardMapper.articleDetailSel(articleNo, userNo);
     }
-    public List<CommentVO> commentListSel(int articleNo, int pageNo, int cntPerPage){
-        return boardMapper.commentListSel(articleNo, pageNo, cntPerPage);
+    public List<Object> commentListSel(int articleNo, int pageNo, int cntPerPage){
+        return boardMapper.commentListSel(articleNo, pageNo, cntPerPage, 'd');
     }
 
-
+    public void commentIns(CommentVO commentVO){
+        boardMapper.commentIns(commentVO);
+    }
 
     public int articleIns(ArticleVO articleVO){
         return boardMapper.articleIns(articleVO);

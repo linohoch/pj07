@@ -16,4 +16,7 @@ public class ArticleVO {
     private int likeCnt;
     private String insDate;
     private String upDate;
+
+    private int photoNo;
+    private String url;
 }

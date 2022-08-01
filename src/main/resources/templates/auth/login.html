@@ -1,22 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>로그인페이지</title>
-</head>
-<body>
-    <form action="/auth2/login" method="POST">
-        <div>
-            <input id="userId" name="userId" type="email" placeholder="아이디">
-        </div>
-        <div>
-            <input id="userPw" name="pw" type="password" placeholder="비밀번호">
-        </div>
-        <div>
-            <input type="submit" value="로그인">
-        </div>
-    </form>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layouts/layoutContents.html}">
+<th:block layout:fragment="script">
+    <script th:src="@{../resources/dist/sign.bundle.js}"></script>
+</th:block>
+<th:block layout:fragment="content">
+    <div>
+        <form id="login_form" action="/auth2/login" method="POST">
+            <div>
+                <input id="userId" name="userId" type="email" placeholder="아이디">
+            </div>
+            <div>
+                <input id="userPw" name="pw" type="password" placeholder="비밀번호">
+            </div>
+            <div>
+                <button id="login_btn">login</button>
+            </div>
+        </form>
         <a href="auth/signup">회원가입</a>
-
-</body>
+    </div>
+</th:block>
+>
 </html>

@@ -63,11 +63,11 @@ public interface BoardMapper {
      * url
      */
     @Select("CALL pj1.article_detail_sel(#{articleNo},#{userNo})")
-    List<ArticleVO> articleDetailSel(int articleNo, int userNo);
+    ArticleVO articleDetailSel(int articleNo, int userNo);
     //댓글리스트 가져오기
-    @ResultMap("ResultMap.CommentVO")
-    @Select("CALL pj1.comment_sel(#{articleNo},#{pageNo},#{cntPerPage})")
-    List<CommentVO> commentListSel(int articleNo, int pageNo, int cntPerPage);
+    @ResultMap({"ResultMap.integer","ResultMap.CommentVO"})
+    @Select("CALL pj1.p_comment_list_sel_v2(#{articleNo},#{pageNo},#{cntPerPage},#{orderSlct})")
+    List<Object> commentListSel(int articleNo, int pageNo, int cntPerPage, char orderSlct);
 //    @ResultMap("ResultMap.CommentVO")
 //    @Select("select * from comments where article_no=#{articleNo} order by grp desc, seq asc limit #{pageNo},#{cntPerPage}")
 //    int commentListSel(int articleNo, int pageNo, int cntPerPage);
@@ -81,8 +81,27 @@ public interface BoardMapper {
     int articleIns(ArticleVO articleVO);
     //첨부파일업로드
     int photoListIns(List<Map<String, Object>> imageInfoList);
-    //댓글등록
-    int commentIns(CommentVO commentVO);
+
+    /**
+     * method : 댓글등록
+     * author : linohoch
+     * description :
+     * Comment ins int.
+     *
+     * @param commentVO the comment vo
+     *                  commentNo   --부모댓글의 번호 -> 나의 parent_no
+     *                  grp         --부모댓글의 그룹 루트(lv1) 댓글 번호
+     *                  lv          --부모댓글의 레벨
+     *                  seq         --부모댓글의 그룹내 댓글순서
+     *                  articleNo   --게시글 번호
+     *                  userNo      --댓글 작성자
+     *                  contents    --댓글 내용
+     * @return the int
+     */
+    @ResultMap("ResultMap.integer")
+    @Select("CALL pj1.p_comment_ins_v1(#{commentNo},#{grp},#{lv},#{seq},#{articleNo},#{userNo},#{contents})")
+    Integer commentIns(CommentVO commentVO);
+
     //내 게시물 가져오기
     List<ArticleVO> myArticleListSel(int userNo, int pageNo, int cntPerPage);
 }
