@@ -83,7 +83,8 @@ public class WebSecurityConfig {
 
             .and()
                 .authorizeRequests().antMatchers("/admin").hasRole("ADMIN")
-                                    .antMatchers("**","/auth/**", "/auth2/**").permitAll()//접근허용경로
+                                    .antMatchers("**","/auth/**", "/auth2/**",
+                                            "/swagger-ui/**","/swagger/**").permitAll()//접근허용경로
                 .anyRequest().authenticated()
 
             .and()
@@ -118,7 +119,7 @@ public class WebSecurityConfig {
                 .userInfoEndpoint()
                 .userService(customUserService)
             .and()
-                .defaultSuccessUrl("/",true)
+                .defaultSuccessUrl("/",false)
                 .successHandler(oAuth2SuccessHandler)
                 .failureHandler(oAuth2FailureHandler);
 

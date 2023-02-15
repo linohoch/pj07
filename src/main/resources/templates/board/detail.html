@@ -10,30 +10,32 @@
         <div class="">
             <div class="">article detail page</div>
                 <div class="contents_wrapper">
-                    <div class="article_container">
+                    <div class="article_container" th:with="vo=${contents[0]}">
                         <div class="title_area">
-                            <div>No.[[${contents.articleNo}]]</div>
-                            <div>제목[[${contents.title}]]</div>
-                            <div>[[${contents.insDate}]]</div>
+                            <div>No.[[${vo.articleNo}]]</div>
+                            <div>제목[[${vo.title}]]</div>
+                            <div>[[${vo.insDate}]]</div>
                         </div>
                         <div class="sub_area">
-                            <div>작성자[[${contents.userNo}]]</div>
+                            <div>작성자[[${vo.userNo}]]</div>
                             <div>
-                                <div>hit_cnt[[${contents.hitCnt}]]</div>
-                                <div>like_cnt[[${contents.likeCnt}]]</div>
+                                <div>hit_cnt[[${vo.hitCnt}]]</div>
+                                <div class="like_cnt">like_cnt[[${vo.likeCnt}]]</div>
                             </div>
                         </div>
                         <div class="article_area">
-                            <div>내용[[${contents.contents}]]</div>
+                            <div>내용[[${vo.contents}]]</div>
                         </div>
                         <div class="bottom_area">
-                            <div>shop_no[[${contents.shopNo}]]</div>
-                        </div>
-                        <div>
-                            <div>photo_no[[${contents.photoNo}]]</div>
+                            <div>shop_no[[${vo.shopNo}]]</div>
                         </div>
                         <div class="photo_container">
-                            <img th:src="${contents.url}" width="100px" alt="userphoto"/>
+                            <th:block th:if="${#lists.size(photoList)}>0">
+                                <div class="photo_block"
+                                     th:each="ph : ${photoList}">
+                                    <img th:src="${ph.url}" alt="userphoto"/>
+                                </div>
+                            </th:block>
                         </div>
 
                         <div>
@@ -44,14 +46,26 @@
                                 <th:block th:if="${isLogin}">
                                     <textarea class="comment_textarea"></textarea>
                                 </th:block>
-                                <button th:data-article-no="${contents.articleNo}"
+                                <button th:data-article-no="${vo.articleNo}"
                                         th:disabled="${!isLogin}"
                                         class="lv1_comment_btn">comment
                                 </button>
+                                <th:block th:if="${isLogin}">
+                                    <button th:text="${vo.likeYn}=='n'?'like':'like cancel'"
+                                            th:data-liked="${vo.likeYn}"
+                                            th:data-article-no="${vo.articleNo}"
+                                            class="like_btn"></button>
+
+                                    <th:block th:if="${vo.userNo}==${me}">
+                                        <button class="article_edit_btn">edit</button>
+                                    </th:block>
+                                </th:block>
+
                             </div>
                             <div>댓글[[${cnt}]]</div>
                         </div>
                     </div>
+
                 <th:block th:if="${#lists.size(comment)}>0">
                     <div class="comment_list_container">
                         <div class="comment unselected"
@@ -85,11 +99,10 @@
                     </div>
                 </th:block>
                 <th:block th:unless="${#lists.size(comment)}>0">
-                    <div>
+                    <div class="comment_list_container">
                         댓글이 없다
                     </div>
                 </th:block>
-                <div class="panel-footer"></div>
             </div>
         </div>
     </div>

@@ -7,20 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Base64;
 
 
 public class CookieUtil {
-
-//    public static CookieVO getCookieVO(HttpServletRequest request) throws IllegalAccessException {
-//        Field[] fields =CookieVO.class.getDeclaredFields();
-//        CookieVO cookieVO = new CookieVO();
-//        for(Field field : fields){
-//            field.setAccessible(true);
-//            field.set(cookieVO,getCookieValue(request, field.getName()));
-//        }
-//        return cookieVO;
-//    }
 
     public static String getCookieValue(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
@@ -33,6 +24,22 @@ public class CookieUtil {
             }
         }
         return "";
+    }
+    public static void appendValue(HttpServletRequest request,
+                                      HttpServletResponse response,
+                                      String name, String no) {
+        String array = getCookieValue(request, name);
+        System.out.println("append cookie: "+array+"-"+no);
+        addCookie(response,name, array+"-"+no,10000);
+    }
+
+    public static boolean isInListAs(HttpServletRequest request, String name, String no) {
+        System.out.println("cookie 리스트값 확인 ->"+getCookieValue(request, name));
+        String[] array=getCookieValue(request, name).split("-");
+        for (String a : array) {
+            if (a.equals(no)) return true;
+        }
+        return false;
     }
 
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {

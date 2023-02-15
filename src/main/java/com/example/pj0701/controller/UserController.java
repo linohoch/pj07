@@ -55,7 +55,7 @@ public class UserController {
     }
     //회원등록
     @PostMapping("/signup")//폼테스트
-    public ResponseEntity<?> createUser(Pj07UserInfoVO pj07UserInfoVO){
+    public ResponseEntity<?> createUser(@RequestBody Pj07UserInfoVO pj07UserInfoVO){
         String encoded_pw=passwordEncoder.encode(pj07UserInfoVO.getPw());
         pj07UserInfoVO.setPw(encoded_pw);
         pj07UserInfoVO.setPwEncryptYn("y");

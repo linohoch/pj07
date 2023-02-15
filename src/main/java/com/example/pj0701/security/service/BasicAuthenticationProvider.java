@@ -22,10 +22,10 @@ public class BasicAuthenticationProvider implements AuthenticationProvider {
 //    private final PasswordEncoder passwordEncoder;
     CustomUserService userService;
     PasswordEncoder passwordEncoder;
- BasicAuthenticationProvider(CustomUserService userService, PasswordEncoder passwordEncoder){
-     this.userService=userService;
-     this.passwordEncoder=passwordEncoder;
- }
+    BasicAuthenticationProvider(CustomUserService userService, PasswordEncoder passwordEncoder){
+        this.userService=userService;
+        this.passwordEncoder=passwordEncoder;
+    }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

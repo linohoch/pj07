@@ -50,7 +50,8 @@ public interface UserMapper {
     @Select("CALL p_user_info_sel(#{userId})")
     Pj07UserInfoVO selectUserById(String userId);
 
-
+    @Select("SELECT user_no FROM user_basic WHERE user_id=#{userId}")
+    Pj07UserInfoVO selectUserNoById(String userId);
     /**
      * method : 회원등록
      * author : linohoch
@@ -74,16 +75,12 @@ public interface UserMapper {
      *                       userId         varchar(50)     이메일
      *                       firstName      varchar(50)     이름
      *                       lastName       varchar(50)     성
-     *                       userBirthDate  date            생년월일
-     *                       userSex        varchar(50)     성별
-     *                       ipAddress      varchar(20)     아이피주소
-     *                       userPw         varchar(50)     비밀번호
      *                       providerType   varchar(50)     소셜로그인(구글,네이버)
      *
      * @return the int
  *                          userNo          int
      */
-    @Select("CALL user_social_ins_v1(#{userId},#{firstName},#{lastName},#{userBirthDate},#{userSex},#{ipAddress},#{userPw},#{providerType})")
+    @Select("CALL pj1.p_user_social_signup_ins(#{userId},#{firstName},#{lastName},#{providerType})")
     int createSocialUser(Pj07UserInfoVO pj07UserInfoVO);
 
     /*
@@ -113,7 +110,7 @@ public interface UserMapper {
      * @param userNo the user no
      * @return the int
      */
-    @Select("update pj1.user_basic set last_login=current_timestamp where user_no=#{userNo};")
+    @Update("update pj1.user_basic set last_login=current_timestamp where user_no=#{userNo};")
     int updateLoginTimestamp(int userNo);
 
 //    @Select("CALL pj1.p_user_refresh_chk_sel(#{token})")
@@ -152,9 +149,9 @@ public interface UserMapper {
      */
 //    @Insert("insert into pj1.social_token(social_id, provider, refresh_token, exp_date) values(#{userId},#{provider},#{refreshToken},#{expDate})")
 //    void insertRefreshToken(String userId, String provider,String refreshToken, String expDate);
-    @Insert("CALL pj1.p_refresh_token_ins(#{userId},#{provider},#{refreshToken},#{expDate})")
+    @Select("CALL pj1.p_refresh_token_ins(#{userId},#{provider},#{refreshToken},#{expDate})")
     void insertRefreshToken(String userId, String provider,String refreshToken, String expDate);
 
-    @Delete("CALL pj1.p_invalidate_refresh_token_del(#{userNo})")
+    @Select("CALL pj1.p_invalidate_refresh_token_del(#{userNo})")
     void deleteRefreshToken(int userNo);
 }

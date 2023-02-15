@@ -66,7 +66,7 @@ nav {
 }
 
 .row>div:nth-child(1){
-    overflow: overlay;
+    overflow: auto;
     height: inherit;
 }
 .element::-webkit-scrollbar { width: 0 !important }
@@ -136,6 +136,10 @@ nav {
 .sub_area{display: flex; justify-content: space-between; background-color: ghostwhite; padding: 2px;
     max-width: 700px; min-width: 400px;}
 .article_area{max-width: 700px; min-width: 400px; min-height: 200px; padding: 10px;}
+.photo_container{display: flex;}
+.photo_block{display: flex; width: 150px; height: 150px;}
+.photo_block>img{object-fit: cover}
+
 /* write */
 .search_area>.item{padding-left:10px; width:200px; background-color: antiquewhite;}
 .input_wrapper{min-width: inherit; min-height: inherit;}

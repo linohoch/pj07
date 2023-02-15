@@ -3,6 +3,7 @@ package com.example.pj0701.security.handler;
 import com.example.pj0701.proc.UserMapper;
 import com.example.pj0701.security.jwt.JwtTokenProvider;
 import com.example.pj0701.security.userInfo.OAuth2Attributes;
+import com.example.pj0701.util.CookieUtil;
 import com.example.pj0701.vo.Pj07UserInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -33,11 +34,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication auth) throws IOException, ServletException {
 
         OAuth2Attributes oAuth2User = (OAuth2Attributes) auth.getPrincipal();
-        Pj07UserInfoVO DBUser = Optional.ofNullable(userMapper.selectUserById(oAuth2User.getEmail()))
+        Pj07UserInfoVO DBUser = Optional.ofNullable(userMapper.selectUserNoById(oAuth2User.getEmail()))
                                         .orElseGet(Pj07UserInfoVO::new);
         log.info("DB is null? // {}", DBUser);//userNo int로 해놔서 0넘어옴.
-        boolean firstVisit= DBUser.getUserNo() == 0 ;
-        log.info("firstVisit {}",firstVisit);
+        int userNo = DBUser.getUserNo();
+        boolean firstVisit= userNo == 0 ;
+        log.info("firstVisit? // {}",firstVisit);
 //    //1.등록처리
 //        //DB 회원이 아닌 경우(최초로그인)
         if (firstVisit) {
@@ -49,7 +51,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .lastName(oAuth2User.getLastName())
                     .providerType(oAuth2User.getProvider())
                     .build();
-            int userNo = userMapper.createSocialUser(pj07UserInfoVO);
+            userNo = userMapper.createSocialUser(pj07UserInfoVO);
+            log.info("createSocialUserNo{}",userNo);
         }
 //        //DB 회원이지만 로그인방식이 다른 경우
 //        if (DBUser.getProviderType() == null || !DBUser.getProviderType().equals(oAuth2User.getProvider())) {

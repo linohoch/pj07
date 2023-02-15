@@ -2,6 +2,7 @@
 
 import tmplt from "../../../templates/board/addShop.html";
 import write_tmplt from "../../../templates/board/write.html";
+import {CancelLike, likeArticle} from "./api"
 
 const axios = require('axios');
 const $ = require("jquery");
@@ -16,9 +17,8 @@ $(()=>{
 
 export class content_page {
 
-
     constructor() {
-        this.page_load();
+        // this.page_load();
         // this.page_write();
         // this.page_edit();
         // this.page_delete();
@@ -34,59 +34,88 @@ export class content_page {
         }
     }
     eventBinding(){
+        window.onload = ()=> {
     //버튼
-        $(document).on('click','.write_btn',()=>{
-            $('.listWrapper').html(write_tmplt);
-        })
-        $(document).on('click','.addShop_btn',()=>{
-            // const template=require("../../../templates/board/addShop.html");
-            // let wrapper=document.getElementsByClassName('.listWrapper')
-            $('.listWrapper').html(tmplt);
-        })
-        document.querySelector('.logout_btn').addEventListener('click',()=>{
-            // document.cookie = "max-age:0;"
-            // axios.post('/logout')
-        })
 
-        //shopCard를 article로 임시로 쓰는 중
-        //게시글클릭
-        document.querySelectorAll('.shopCard').forEach((el)=>{
-            el.addEventListener('click',(ev)=>{
-                let articleNo = ev.currentTarget.querySelector('.title').dataset.key
-                let url =`/board/article/${articleNo}`
-                window.location.href=url;
+            $(document).on('click', '.write_btn', () => {
+                $('.listWrapper').html(write_tmplt);
             })
-        })
-        //게시글댓글
-        document.querySelector('.lv1_comment_btn').addEventListener('click',(e)=>{
-            const data={}
-            data.articleNo =e.currentTarget.dataset.articleNo;
-            data.contents  =e.currentTarget.previousElementSibling.value.trim();
-            this.insertComment(data)
-
-        })
-        //대댓글
-        document.querySelectorAll('.comment_contents').forEach((el)=>{
-            el.addEventListener('click',(e)=>{
-                let elClass = e.currentTarget.parentElement.classList
-                console.log(e.currentTarget.parentElement)
-                let selected =elClass.contains('unselected')
-                console.log(selected)
-                document.querySelectorAll('.selected')
-                    .forEach(el=>el.classList.replace('selected', 'unselected'))
-                if(selected){elClass.replace('unselected','selected')}
+            $(document).on('click', '.addShop_btn', () => {
+                // const template=require("../../../templates/board/addShop.html");
+                // let wrapper=document.getElementsByClassName('.listWrapper')
+                $('.listWrapper').html(tmplt);
             })
-        })
-        document.querySelectorAll('.comment_btn').forEach((el)=>{
-            el.addEventListener('click',(e)=>{
-                const data=e.currentTarget.dataset
-                data.contents=e.currentTarget.parentElement.getElementsByClassName('comment_textarea')[0].value.trim()
+            document.querySelector('.logout_btn').addEventListener('click', () => {
+                // document.cookie = "max-age:0;"
+                // axios.post('/logout')
+            })
 
-                console.log(data)
-                this.insertComment(data);
-            });
-        })
+            //shopCard를 article로 임시로 쓰는 중
+            //게시글클릭
+            document.querySelectorAll('.shopCard').forEach(el => {
+                el.addEventListener('click', (ev) => {
+                    console.log("ttqut")
+                    let articleNo = ev.currentTarget.querySelector('.title').dataset.key;
+                    let url = `/board/article/${articleNo}`;
+                    window.location.href = url;
+                })
+            })
+            //게시글좋아요
+            const $likeBtn = document.querySelector('.like_btn')
+            if ($likeBtn !== undefined && $likeBtn !== null)
+                $likeBtn.addEventListener('click', (e) => {
+                    let likeYn = e.currentTarget.dataset.liked;
+                    let articleNo = e.currentTarget.dataset.articleNo;
+                    if (likeYn === 'n') {
+                        likeArticle(articleNo).then(r => {
+                                if (r.status === 201) {
+                                    $likeBtn.dataset.liked = 'y'
+                                    $likeBtn.innerText = 'like cancel'
+                                }
+                            }
+                        )
+                    } else {
+                        CancelLike(articleNo).then(r => {
+                            if (r.status === 201) {
+                                $likeBtn.dataset.liked = 'n'
+                                $likeBtn.innerText = 'like'
+                            }
+                        })
+                    }
+                })
 
+            //게시글댓글
+            document.querySelector('.lv1_comment_btn').addEventListener('click', (e) => {
+                const data = {}
+                data.articleNo = e.currentTarget.dataset.articleNo;
+                data.contents = e.currentTarget.previousElementSibling.value.trim();
+                this.insertComment(data)
+
+            })
+            //대댓글
+            document.querySelectorAll('.comment_contents').forEach((el) => {
+                el.addEventListener('click', (e) => {
+                    let elClass = e.currentTarget.parentElement.classList
+                    console.log(e.currentTarget.parentElement)
+                    let selected = elClass.contains('unselected')
+                    console.log(selected)
+                    document.querySelectorAll('.selected')
+                        .forEach(el => el.classList.replace('selected', 'unselected'))
+                    if (selected) {
+                        elClass.replace('unselected', 'selected')
+                    }
+                })
+            })
+            document.querySelectorAll('.comment_btn').forEach((el) => {
+                el.addEventListener('click', (e) => {
+                    const data = e.currentTarget.dataset
+                    data.contents = e.currentTarget.parentElement.getElementsByClassName('comment_textarea')[0].value.trim()
+
+                    console.log(data)
+                    this.insertComment(data);
+                });
+            })
+        }
     }
     insertComment(data){
         axios.post(COMMENT_URL, JSON.stringify(data), {headers: {"Content-Type": `application/json`},})
@@ -95,6 +124,22 @@ export class content_page {
                 console.log(res)
                 window.location.reload();
             })
+    }
+    scroll(){
+        const $ul=document.querySelector('ul')
+        let last_li=document.querySelector('li:last-child');
+        // let count = $ul.children.length
+        const observer = new IntersectionObserver((entries,observer)=>{
+            const target = entries[0].target;
+
+            if(entries[0].isIntersecting){
+                console.log("현재보이는타겟", target)
+                observer.unobserve(last_li)
+                //li 추가
+                observer.observe(last_li)
+            }
+        }, {threshold: 0.8});
+        observer.observe(last_li);
     }
 
 
@@ -202,15 +247,18 @@ export class content_page {
                 map.panTo( new kakao.maps.LatLng(x,y));
 
             }
-            $('.title').on('click',function() {
+            $('.title').on('click',function(ev) {
+                ev.stopPropagation();
                 idx = Number($(this).attr('data-key'))
                 let clat=null;
                 let clng=null;
                 console.log(idx);
-                for(let i=0; i<latlng.length;i++){
-                    if( latlng[i].idx === idx){
-                        clat=latlng[i].shopLat;
-                        clng=latlng[i].shopLong;
+                if(latlng!=null&&latlna!==undefined) {
+                    for (let i = 0; i < latlng.length; i++) {
+                        if (latlng[i].idx === idx) {
+                            clat = latlng[i].shopLat;
+                            clng = latlng[i].shopLong;
+                        }
                     }
                 }
                 panTo(clat, clng)
@@ -218,27 +266,6 @@ export class content_page {
 
         }
 
-    }
-    page_load() {
-        // $('.title').on('click',function() {
-        //     //람다는 this 불가
-        //     idx = $(this).attr('data-key')
-        //     axios.get("/getImage", {
-        //         params: { idx: idx },
-        //         responseType :'arraybuffer',
-        //
-        //         headers:{
-        //             //'responseType' : 'blob',
-        //             //'accept':'image/png',
-        //         },//결국 필요 없었음
-        //     }).then((response)=> {
-        //         $('.boardContent').html('');
-        //         $('.boardContent').append('<img id="img1" />');
-        //         //let arrayBufferView = new Uint8Array(response.data);
-        //         let blob = new Blob([response.data], { type: "image/png" });
-        //         document.getElementById("img1").src = window.URL.createObjectURL(blob);
-        //     });
-        // })
     }
     nav_down(){
         let didScroll;

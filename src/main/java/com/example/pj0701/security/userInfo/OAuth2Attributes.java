@@ -17,7 +17,7 @@ import java.util.Map;
 @Builder
 @Getter
 public class OAuth2Attributes implements OAuth2User {
-    private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");;
+    @Builder.Default private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
     private Map<String, Object> attributes;
     private String nameAttributeKey;
     private String provider;

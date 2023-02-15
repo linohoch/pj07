@@ -12,6 +12,9 @@ public interface BoardMapper {
     @ResultMap({"ResultMap.ArticleVO"})
     @Select("CALL pj1.p_test_grant()")
     List<ArticleVO> testproc();
+    @ResultMap({"ResultMap.ArticleVO","ResultMap.PhotoVO"})
+    @Select("CALL pj1.p_article_detail_sel_v1( #{articleNo}, #{userNo} )")
+    List<Object> testproc1(int articleNo, int userNo);
 
     //업체등록,수정,삭제
     @Select("CAll pj1.p_shopInfo_ins(#{shopName},#{shopDisc},#{shopLat},#{shopLong},#{rpstPhoto},#{userNo},#{chrgrNo})")
@@ -20,8 +23,6 @@ public interface BoardMapper {
     @ResultMap("ResultMap.ShopInfoVO")
     @Select("CALl pj1.p_shopInfo_list_sel(#{pageNo},#{cntPerPage},#{orderCol},#{orderBy})")
     List<Object> shopInfoListSel_1(int pageNo, int cntPerPage, char orderCol, char orderBy);
-
-//    List<ShopInfoVO> shopInfoListSel(int pageNo, int cntPerPage, char orderCol, char orderBy);
 
     //업체디테일
     @ResultMap("ResultMap.ShopInfoVO")
@@ -43,7 +44,7 @@ public interface BoardMapper {
      *
      * @param articleNo the article no
      * @param userNo    the user no
-     * @return the list
+     * @return the listarticle
      * shop_no
      * article_no
      * user_no
@@ -64,14 +65,24 @@ public interface BoardMapper {
      */
     @Select("CALL pj1.article_detail_sel(#{articleNo},#{userNo})")
     ArticleVO articleDetailSel(int articleNo, int userNo);
-    //댓글리스트 가져오기
-    @ResultMap({"ResultMap.integer","ResultMap.CommentVO"})
-    @Select("CALL pj1.p_comment_list_sel_v2(#{articleNo},#{pageNo},#{cntPerPage},#{orderSlct})")
-    List<Object> commentListSel(int articleNo, int pageNo, int cntPerPage, char orderSlct);
-//    @ResultMap("ResultMap.CommentVO")
-//    @Select("select * from comments where article_no=#{articleNo} order by grp desc, seq asc limit #{pageNo},#{cntPerPage}")
-//    int commentListSel(int articleNo, int pageNo, int cntPerPage);
 
+    @ResultMap({"ResultMap.ArticleVO","ResultMap.PhotoVO"})
+    @Select("CALL pj1.p_article_detail_sel_v2( #{articleNo}, #{userNo} )")
+    List<Object> articleDetailSel2(int articleNo, int userNo);
+
+    //조회수
+    @Update("UPDATE pj1.article SET hit_cnt=hit_cnt+1 WHERE article_no=#{articleNo}")
+    void articleHitUpd(int articleNo);
+    //좋아요
+    //TODO proc으로 합쳐
+    @Update("UPDATE pj1.article SET like_cnt=like_cnt+1 WHERE article_no=#{articleNo}")
+    int articleLikeUp(int articleNo);
+    @Update("UPDATE pj1.article SET like_cnt=like_cnt-1 WHERE article_no=#{articleNo}")
+    int articleLikeDown(int articleNo);
+    @Insert("Insert into pj1.user_article_likeYn(article_no, user_no, like_yn) VALUES(#{articleNo},#{userNo},'y')")
+    int articleLikeUserIns(int articleNo, int userNo);
+    @Delete("Delete FROM pj1.user_article_likeYn WHERE user_no=#{userNo} and article_no=#{articleNo}")
+    int articleLikeUserDel(int articleNo, int userNo);
 
     //-------------------------------------------------------------
 
@@ -101,6 +112,18 @@ public interface BoardMapper {
     @ResultMap("ResultMap.integer")
     @Select("CALL pj1.p_comment_ins_v1(#{commentNo},#{grp},#{lv},#{seq},#{articleNo},#{userNo},#{contents})")
     Integer commentIns(CommentVO commentVO);
+    @Update("Update FROM pj1.comments(contents) VALUES(#{contents}) WHERE article_no=#{articleNo} and comment_no=#{commentNo}")
+    int commentUpd(int articleNo, int commentNo, String contents);
+    @Delete("Delete FROM pj1.comments WHERE article_no=#{articleNo} and comment_no=#{commentNo}")
+    int commentDel(int articleNo, int commentNo);
+
+    //댓글리스트 가져오기
+    @ResultMap({"ResultMap.integer","ResultMap.CommentVO"})
+    @Select("CALL pj1.p_comment_list_sel_v2(#{articleNo},#{pageNo},#{cntPerPage},#{orderSlct})")
+    List<Object> commentListSel(int articleNo, int pageNo, int cntPerPage, char orderSlct);
+//    @ResultMap("ResultMap.CommentVO")
+//    @Select("select * from comments where article_no=#{articleNo} order by grp desc, seq asc limit #{pageNo},#{cntPerPage}")
+//    int commentListSel(int articleNo, int pageNo, int cntPerPage);
 
     //내 게시물 가져오기
     List<ArticleVO> myArticleListSel(int userNo, int pageNo, int cntPerPage);

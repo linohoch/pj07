@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The type Board service.
+ */
 @Slf4j
 @Service
 public class BoardService {
@@ -18,6 +21,10 @@ public class BoardService {
     BoardMapper boardMapper;
     BoardService(BoardMapper boardMapper){
         this.boardMapper=boardMapper;
+    }
+
+    public Object procTest(int articleNo, int userNo){
+        return boardMapper.testproc1(articleNo, userNo);
     }
 
     public List<Object> shopListSel(){
@@ -35,18 +42,37 @@ public class BoardService {
         return voList;
     }
 
+    public void articleHitUp(int articleNo){
+        boardMapper.articleHitUpd(articleNo);
+    }
 
-
-    public ArticleVO articleDetailSel(int articleNo, int userNo){
-        return boardMapper.articleDetailSel(articleNo, userNo);
+    public List<Object> articleDetailSel(int articleNo, int userNo){
+        return boardMapper.articleDetailSel2(articleNo, userNo);
     }
     public List<Object> commentListSel(int articleNo, int pageNo, int cntPerPage){
         return boardMapper.commentListSel(articleNo, pageNo, cntPerPage, 'd');
     }
 
+    public int articleLikeUp(int articleNo, int userNo){
+        int result = boardMapper.articleLikeUserIns(articleNo, userNo);
+        if(result>0) return boardMapper.articleLikeUp(articleNo);
+        else return result;
+    }
+    public int articleLikeDown(int articleNo, int userNo){
+        int result = boardMapper.articleLikeUserDel(articleNo, userNo);
+        if(result>0) return boardMapper.articleLikeDown(articleNo);
+        else return result;
+    }
+
     public void commentIns(CommentVO commentVO){
         boardMapper.commentIns(commentVO);
     }
+    public void commentUpd(int articleNo, int commentNo, String contents){
+        boardMapper.commentUpd(articleNo, commentNo, contents);
+    }
+    public void commentDel(int articleNo, int commentNo){
+        boardMapper.commentDel(articleNo, commentNo);
+    };
 
     public int articleIns(ArticleVO articleVO){
         return boardMapper.articleIns(articleVO);
@@ -73,6 +99,11 @@ public class BoardService {
     public int photoIns(int articleNo, List<Map<String,Object>> imgList) {
         imgList.forEach(map->{ map.put("articleNo",articleNo);});
         return boardMapper.photoListIns(imgList);
+    }
+    //TODO proc 합쳐
+    public void photoInsByShopNo(int shopNo, List<Map<String,Object>> imgList) {
+        imgList.forEach(map->{ map.put("shopNo",shopNo);});
+        boardMapper.photoListIns(imgList);
     }
 
     public int shopInfoIns(ShopInfoVO shopInfoVO){

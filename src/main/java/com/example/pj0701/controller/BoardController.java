@@ -10,6 +10,7 @@ import com.example.pj0701.vo.Pj07UserInfoVO;
 import com.example.pj0701.vo.ShopInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,11 +38,15 @@ public class BoardController {
 
     @ResponseBody
     @RequestMapping("/test")
-    public List<Object> test (){return boardService.shopListSel();}
+    public Object test (@RequestParam int articleNo, @RequestParam int userNo){
+        return boardService.procTest(articleNo, userNo);}
 
-    private void isLogin(HttpServletRequest request, Model model){
-        model.addAttribute("isLogin",!CookieUtil.getCookieValue(request, "userNo").isEmpty());
+    private boolean isLogin(HttpServletRequest request, Model model){
+        boolean isUser = !CookieUtil.getCookieValue(request, "userNo").isEmpty();
+        model.addAttribute("isLogin", isUser);
+        return isUser;
     }
+
 //pageAct
     //메인리스트
     @RequestMapping("/list")
@@ -69,21 +74,36 @@ public class BoardController {
     @RequestMapping("/article/{articleNo}")
     public String getArticleDetail (@PathVariable int articleNo,
                                                  HttpServletRequest request,
-                                                 Model model) {
-        isLogin(request, model);
-        int userNo = Integer.parseInt(CookieUtil.getCookieValue(request, "userNo"));
-        model.addAttribute("contents",
-            boardService.articleDetailSel(articleNo, userNo));
+                                                 Model model,
+                                                 HttpServletResponse response) {
+        int userNo=isLogin(request, model)?Integer.parseInt(CookieUtil.getCookieValue(request, "userNo")):0;
+
+        if(!CookieUtil.isInListAs(request, "read", String.valueOf(articleNo))){
+            log.info("cookie 리스트값에 현재 페이지 {} 가 없다면", articleNo);
+            //read 쿠키 수정
+            CookieUtil.appendValue(request, response, "read", String.valueOf(articleNo));
+            //조회수 업데이트
+            boardService.articleHitUp(articleNo);
+        }
+
+        List<Object> article=boardService.articleDetailSel(articleNo, userNo);
+        model.addAttribute("me",userNo);
+        model.addAttribute("contents", article.get(0));
+        model.addAttribute("photoList", article.get(1));
+        log.info("test->{}",article.get(0));
         List<Object> list=boardService.commentListSel(articleNo, 1, 50);
-        log.info(String.valueOf(list));
         model.addAttribute("cnt", list.get(0));
         model.addAttribute("comment",list.get(1));
         return "board/detail";
+
 //        Map<String, Object> map = new HashMap<>();
 //        map.put("contents",boardService.articleDetailSel(articleNo, userNo));
 //        map.put("comment", boardService.commentListSel(articleNo, 1, 50));
 //        return map;
     }
+    //
+
+
 
 //data
 
@@ -97,12 +117,12 @@ public class BoardController {
 //        return boardService.commentListSel(articleNo, pageNo, cntPerPage);
 //    }
 
-//    @RequestMapping("/shop/list")
-//    @ResponseBody
-//    public List<ShopInfoVO> shopListData(@RequestParam(value = "pageNo", required = false) Integer pageNo){
-//        if(pageNo==null){pageNo=1;}
-//        return boardService.shopListSel();
-//    }
+    @RequestMapping("/shop/list")
+    @ResponseBody
+    public ResponseEntity<?> shopListData(@RequestParam(value = "pageNo", required = false) Integer pageNo){
+        if(pageNo==null){pageNo=1;}
+        return ResponseEntity.ok().body(boardService.shopListSel());
+    }
 
     //업체리스트 등록
     @RequestMapping("/shop/add")
@@ -118,16 +138,18 @@ public class BoardController {
             String rpstPhotoUrl = fileList.get(0).get("urlPath").toString();
         System.out.println(rpstPhotoUrl);
             shopInfoVO.setRpstPhoto(rpstPhotoUrl);
-            //1.shopInfo ins -> get shop_no
-            //2.photos ins
+
+            int shopNo=boardService.shopInfoIns(shopInfoVO);
+            boardService.photoInsByShopNo(shopNo, fileList);
+
         }
         return "redirect:/";
     }
     //게시글 등록
     @RequestMapping("/ins")
     public String articleFileInsert(@RequestPart(value="files", required=false) List<MultipartFile> multipartFileList,
-                                            @RequestParam HashMap<String,String> param,
-                                            HttpServletRequest request)throws IOException {
+                                    @RequestParam HashMap<String,String> param,
+                                                  HttpServletRequest request)throws IOException {
         log.info("params//{}", param);
         //TODO userNo from cookie
         int userNo=Integer.parseInt(CookieUtil.getCookieValue(request,"userNo"));

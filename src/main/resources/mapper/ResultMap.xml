@@ -12,6 +12,6 @@
     <resultMap id="ArticleVO"       type="com.example.pj0701.vo.ArticleVO"/>
     <resultMap id="CommentVO"       type="com.example.pj0701.vo.CommentVO"/>
     <resultMap id="Pj07UserInfoVO"  type="com.example.pj0701.vo.Pj07UserInfoVO"/>
-
+    <resultMap id="PhotoVO"         type="com.example.pj0701.vo.PhotoVO"/>
 
 </mapper>
