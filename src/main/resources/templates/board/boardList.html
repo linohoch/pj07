@@ -10,23 +10,31 @@
     <div class="boardContent"></div>
     <div class="container">
         <div class="row" style="overflow: hidden">
-            <div class="col-md-6 col-sm-6 listWrapper">
-                <div th:if="${msg}!='nodata'" >
-                    <div class="shopCard" th:each="vo : ${list}">
-                        <table>
-                            <tr th:data-key="${vo.articleNo}" class="title">
-                                <td>
-<!--                                    <img class="main_thumb" th:src="${vo.file_name}"/>-->
-                                </td>
-                                <td><p>[[${vo.shopNo}]]</p>
-                                    <p>[[${vo.title}]]</p>
-                                    <p>[[${vo.hitCnt}]]</p>
-                                    <p>[[${vo.insDate}]]</p>
-                                </td>
-
-                            </tr>
-                        </table>
+            <div class="col-md-6 col-sm-6" style="height: 90vh">
+                <div class="list-wrapper">
+                    <div th:if="${msg}!='nodata'" >
+                        <div class="shopCard" th:each="vo : ${list}" th:data-key="${vo.articleNo}">
+                            <div class="image-box">
+    <!--                                    <img class="main_thumb" th:src="${vo.file_name}"/>-->
+                            </div>
+                            <div class="title-box">
+                                <div>
+                                    <div>[[${vo.title}]]</div>
+                                    <div>[[${vo.hitCnt}]] / [[${vo.likeCnt}]]</div>
+                                </div>
+                                    <div>[[${vo.contents}]]</div>
+                                    <div>[[${vo.insDate}]]</div>
+                            </div>
+                        </div>
                     </div>
+                    <div class="load-bar">
+                        <p>더 불러오기</p>
+                    </div>
+                </div>
+                <div class="pagination-box">
+                    <th:block th:each="num : ${#numbers.sequence(1,pagination.currentPageSize)}">
+                        <div class="" th:classappend="${num}==${pagination.currentPageNo}?'current-page'">[[${num}]]</div>
+                    </th:block>
                 </div>
             </div>
 

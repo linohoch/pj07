@@ -7,9 +7,7 @@ import com.example.pj0701.vo.ShopInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The type Board service.
@@ -33,13 +31,18 @@ public class BoardService {
 //        (1,50,'n','a');
     }
 
-    public List<ArticleVO> articleListSel(int pageNo, int cntPerPage){
+    public Map<String,Object> articleListSel(int pageNo, int cntPerPage){
         List<Object> list=boardMapper.articleListSel(pageNo, cntPerPage, 'd','d');
         log.info("[0]:board size // {}", list.get(0));
-        log.info("[1]:board vo list // {}", list.get(1));
-//        if(Integer.parseInt(list.get(0).toString())==0){}
-        List<ArticleVO> voList = new ArrayList<>((List<ArticleVO>) list.get(1));
-        return voList;
+        log.info("[1]:shop_no list // {}", list.get(1));
+        log.info("[2]:board vo list // {}", list.get(2));
+
+        Map<String,Object> boardMap = new HashMap<>();
+        boardMap.put("total", ((List<?>) list.get(0)).get(0));
+        boardMap.put("shopList",list.get(1));
+        boardMap.put("articleList",list.get(2));
+//        List<ArticleVO> voList = new ArrayList<>((List<ArticleVO>) list.get(2));
+        return boardMap;
     }
 
     public void articleHitUp(int articleNo){

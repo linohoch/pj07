@@ -80,7 +80,7 @@ public interface UserMapper {
      * @return the int
  *                          userNo          int
      */
-    @Select("CALL pj1.p_user_social_signup_ins(#{userId},#{firstName},#{lastName},#{providerType})")
+    @Select("CALL pj1.p_user_social_signup_ins_v2(#{userId},#{firstName},#{lastName},#{providerType})")
     int createSocialUser(Pj07UserInfoVO pj07UserInfoVO);
 
     /*
@@ -147,10 +147,10 @@ public interface UserMapper {
      * @param refreshToken the refresh token
      * @param expDate      the exp date
      */
-//    @Insert("insert into pj1.social_token(social_id, provider, refresh_token, exp_date) values(#{userId},#{provider},#{refreshToken},#{expDate})")
-//    void insertRefreshToken(String userId, String provider,String refreshToken, String expDate);
-    @Select("CALL pj1.p_refresh_token_ins(#{userId},#{provider},#{refreshToken},#{expDate})")
+    @Insert("insert into pj1.social_token(social_id, provider, refresh_token, exp_date) values(#{userId},#{provider},#{refreshToken},#{expDate})")
     void insertRefreshToken(String userId, String provider,String refreshToken, String expDate);
+//    @Select("CALL pj1.p_refresh_token_ins(#{userId},#{provider},#{refreshToken},#{expDate})")
+//    void insertRefreshToken(String userId, String provider,String refreshToken, String expDate);
 
     @Select("CALL pj1.p_invalidate_refresh_token_del(#{userNo})")
     void deleteRefreshToken(int userNo);

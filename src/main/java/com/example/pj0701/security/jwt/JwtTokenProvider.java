@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -117,7 +118,7 @@ public class JwtTokenProvider {
 
             throw e;
         }catch (Exception e){
-            log.error("invalid accessToken // {}", e.toString());
+            log.error("invalid accessToken // {}", e.getMessage());
             throw e;
         }
     }
@@ -152,7 +153,7 @@ public class JwtTokenProvider {
         }
     }
 
-    //인증정보 생성
+    //인증정보 생성, 소셜도 이것 씀
     public Authentication getAuthentication(String token){
         UserDetails userDetails = customUserService.loadUserByUsername(getUsername(token));
             return new UsernamePasswordAuthenticationToken(userDetails,

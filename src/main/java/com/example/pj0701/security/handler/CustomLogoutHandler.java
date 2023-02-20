@@ -21,13 +21,10 @@ public class CustomLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        jwtTokenProvider.invalidateRefreshToken(Integer.parseInt(CookieUtil.getCookieValue(request,"userNo")));
-        CookieUtil.deleteCookie(request,response,"userNo");
+//        jwtTokenProvider.invalidateRefreshToken(Integer.parseInt(CookieUtil.getCookieValue(request,"userNo")));
+
         CookieUtil.deleteCookie(request,response,"access_token");
         CookieUtil.deleteCookie(request,response,"refresh_token");
-        CookieUtil.deleteCookie(request,response, "JSESSIONID");
-        HttpSession httpSession = request.getSession();
-        httpSession.invalidate();
         SecurityContextHolder.getContext().setAuthentication(null);
         SecurityContextHolder.clearContext();
     }

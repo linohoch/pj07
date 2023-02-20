@@ -16,6 +16,8 @@
         <div class="menu">
                 <li><a href="/board/writeForm">쓰기</a></li>
             <th:block th:if="${isLogin}">
+            <th:block>[[${userInfo.userNo}]]</th:block>
+            <th:block>[[${userInfo.username}]]</th:block>
                 <li><a class="addShop_btn">샵추가</a></li>
                 <li><a href="/auth/logout" class="logout_btn">로그아웃</a></li>
             </th:block>

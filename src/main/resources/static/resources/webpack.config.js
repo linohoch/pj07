@@ -31,15 +31,17 @@ module.exports={
         modules: [path.resolve('.'), '.', "node_modules"],
         extensions: [".js", ".json",".ts"],
         alias: {
-            /** import시 리소스 경로 잡아주는 알리아스 */
             '@': path.join(__dirname, 'js'),
         }
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Hot Module Replacement',
+
         }),
         // new webpack.HotModuleReplacementPlugin(),
+        new MiniCssExtractPlugin({
+            filename: 'css/[name].css'
+        })
     ],
     target: 'web',
 

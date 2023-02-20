@@ -22,7 +22,9 @@ public class PaginationUtil {
         int prevBlockLastPageNo = thisFirstPageNo==1?1: thisFirstPageNo - 1;
         int nextBlockFistPageNo = thisLastPageNo==totalPageCnt?thisLastPageNo: thisLastPageNo + 1;
 
-        List<Integer> list= Stream.iterate(thisFirstPageNo, a -> a + 1).limit(thisLastPageNo - thisFirstPageNo + 1).collect(Collectors.toList());
+        List<Integer> list= Stream.iterate(thisFirstPageNo, a -> a + 1)
+                .limit(thisLastPageNo - thisFirstPageNo + 1)
+                .collect(Collectors.toList());
 
         pagination.put("thisPageNo",thisPageNo);
         pagination.put("prevPageNo",prevPageNo); //

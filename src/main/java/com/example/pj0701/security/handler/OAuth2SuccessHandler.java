@@ -8,6 +8,9 @@ import com.example.pj0701.vo.Pj07UserInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
@@ -63,12 +66,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             log.info("timestamp");
             userMapper.updateLoginTimestamp(DBUser.getUserNo());
     //2.토큰처리
-//        if(firstVisit){  userNo도 넣자.
             Map<String,String> tokens = jwtTokenProvider.createTokens(oAuth2User.getProvider(), oAuth2User.getEmail());
-            response.setHeader("access_token", tokens.get("accessToken"));
-            response.setHeader("refresh_token", tokens.get("refreshToken"));
-//            issueTokens(tokens);
-//        }
+            CookieUtil.addCookie(response,"access_token", tokens.get("accessToken"),1000*60*60);
+            response.sendRedirect("/");
 
     //3.쿠키처리
         //참고: 쿼링파람에 담는 예제
@@ -77,9 +77,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 //        String targetUrl = UriComponentsBuilder.fromUriString("/home")
 //                .queryParam("token", token)
 //                .build().toUriString();
-        String targetUrl=determineTargetUrl(request, response, auth);
-        targetUrl="http://localhost:8080/board/list";
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
+//        String targetUrl=determineTargetUrl(request, response, auth);
+//        targetUrl="http://localhost:8080/board/list";
+//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
 

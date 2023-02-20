@@ -70,8 +70,8 @@ public class BoardRestApi {
                                             @Parameter(name="per-page", in=ParameterIn.QUERY, required = true)
                                             @RequestParam("per-page") int cntPerPage){
         try {
-            List<ArticleVO> list = boardService.articleListSel(pageNo, cntPerPage);
-            return ResponseEntity.ok().body(list);
+            Map<String, Object> boardMap = boardService.articleListSel(pageNo, cntPerPage);
+            return ResponseEntity.ok().body(boardMap.get("articleList"));
         }catch (Exception e){
             return ResponseEntity.status(201).build();
         }

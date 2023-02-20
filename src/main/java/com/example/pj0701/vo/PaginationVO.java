@@ -9,19 +9,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaginationVO {
 
-    private int pageSize=10;  //-------------------상수
+    private int currentPageSize;
+
+    private int pageSize=5;  //-------------------상수
     private int firstPageNo;
     private int currentPageNo;  //------------------------사용자입력 디폴트1
     private int lastPageNo;
 
     private int firstArticleIndex;
-    private int articleCountPerPage=25; //---------상수
+    private int articleCountPerPage=10; //---------상수
     private int lastArticleIndex;
 
     private int totalPageCount;
     private int totalArticleCount;  //------------가장먼저DA
 
-
+    public int getCurrentPageSize() {
+        return getLastPageNo() - getFirstPageNo() + 1 ;
+    }
     public int getPageSize() {
         return pageSize;
     }
@@ -53,9 +57,10 @@ public class PaginationVO {
         return firstArticleIndex;
     }
     public int getLastArticleIndex() {
-        int lastArticleIndex=5;
         lastArticleIndex = getCurrentPageNo()*getArticleCountPerPage();
-
+        if(lastArticleIndex > totalArticleCount){
+            lastArticleIndex=totalArticleCount;
+        }
         return lastArticleIndex;
     }
     //-----------------------------------------------------------------------
@@ -71,6 +76,9 @@ public class PaginationVO {
     }
 
     //-------------------------------------------------------------------
+    public void setCurrentPageSize(int currentPageSize) {
+        this.currentPageSize = currentPageSize;
+    }
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }

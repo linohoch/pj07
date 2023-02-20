@@ -5,14 +5,14 @@
 
 
 <th:block th:replace="fragments/head :: headFragment"></th:block>
-<th:block layout:fragment="script"></th:block>
 
+<th:block layout:fragment="script"></th:block>
 <body>
 <th:block th:replace="fragments/header :: .header"></th:block>
 
 <div layout:fragment="content" class="content"></div>
 
-
+<th:block th:replace="fragments/head :: scriptFragment"></th:block>
 </body>
 
 </html>

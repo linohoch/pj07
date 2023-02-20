@@ -91,29 +91,57 @@ nav {
     box-shadow: 0 1rem 1rem hsl(0 0% 0% / 10%);
 
 }
-.shopCard{
-    overflow:hidden;
-    position:relative;
-    display: inline-block;
-    align-items: center;
+.shopCard {
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    /*align-items: center;*/
+    cursor: pointer;
 
     width: 90%;
-    height: 200px;
+    height: 100px;
     box-shadow: 3px 3px 8px 0px hsl(0deg 0% 83%);
     background: hsl(0deg 0% 98%);
     color: hsl(200 50% 20%);
     line-height: 1.5;
-
-    place-items: center;
-    text-align: center;
+    /*place-items: center;*/
+    /*text-align: center;*/
     margin: 20px 0px 20px 0;
     /*border-radius: 2ch;*/
     border: 0px solid hsl(0 0% 85%);
+}
+.image-box{
+    background-color: gray;
+    width: 100px;
+    height: 100px;
+}
+.title-box{
+    flex-grow: 1;
+    margin: 10px 10px 10px 10px;
+    display: block;
+}
+.title-box>div:nth-child(1){
+    height: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+.title-box>div:nth-child(2){
+    height: 40px;
+    overflow: hidden;
+}
+.title-box>div:nth-child(3){
+    height: 20px;
+    position: absolute;
+    bottom: 10px;
+    font-size: smaller;
 }
 .main_thumb {
     height: 200px;
     width: 200px;
 }
+
+
+
 
 .hidden {display: none;}
 .unselected > .comment_textarea_wrapper {display: none;}.selected > .comment_textarea_wrapper {display: flex;}
@@ -137,7 +165,7 @@ nav {
     max-width: 700px; min-width: 400px;}
 .article_area{max-width: 700px; min-width: 400px; min-height: 200px; padding: 10px;}
 .photo_container{display: flex;}
-.photo_block{display: flex; width: 150px; height: 150px;}
+.photo_block{display: flex; width: 150px; height: 150px; background-color: gray; margin: 1px 1px 1px 1px;}
 .photo_block>img{object-fit: cover}
 
 /* write */
@@ -147,3 +175,10 @@ input{border: none; max-width: inherit; min-width: inherit; max-height: inherit;
 input:focus{outline:none; background-color: aliceblue;}
 .contents_textarea{min-width: inherit; min-height: inherit; border: none; resize: none;}
 .contents_textarea:focus{outline: none;}
+
+.load-bar{height: 50px; background-color: skyblue; text-align: center;}
+.load-bar:hover{opacity: 80%}
+.list-wrapper{margin-bottom: 50px}
+.pagination-box{height:50px; width: 100%; display: flex; position: fixed; bottom: 1px; background-color: white}
+.pagination-box>div{width: 50px; text-align: center; align-self: center}
+.current-page{font-weight: bold}

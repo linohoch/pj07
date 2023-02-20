@@ -1,17 +1,18 @@
 package com.example.pj0701.controller;
 
+import com.example.pj0701.security.userInfo.AuthUserInfo;
 import com.example.pj0701.service.BoardService;
 import com.example.pj0701.service.S3Service;
 import com.example.pj0701.security.service.UserService;
 import com.example.pj0701.util.CookieUtil;
-import com.example.pj0701.vo.ArticleVO;
-import com.example.pj0701.vo.CommentVO;
-import com.example.pj0701.vo.Pj07UserInfoVO;
-import com.example.pj0701.vo.ShopInfoVO;
+import com.example.pj0701.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.events.Comment;
 import java.io.IOException;
 import java.net.HttpCookie;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +43,16 @@ public class BoardController {
     public Object test (@RequestParam int articleNo, @RequestParam int userNo){
         return boardService.procTest(articleNo, userNo);}
 
-    private boolean isLogin(HttpServletRequest request, Model model){
-        boolean isUser = !CookieUtil.getCookieValue(request, "userNo").isEmpty();
-        model.addAttribute("isLogin", isUser);
-        return isUser;
+    private int loginUser(HttpServletRequest request, Model model){
+        AuthUserInfo userInfo = new AuthUserInfo();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(!(auth instanceof AnonymousAuthenticationToken)){
+            userInfo = (AuthUserInfo) auth.getPrincipal();
+        }
+        int userNo = userInfo.getUserNo();
+        model.addAttribute("userInfo", userInfo);
+        model.addAttribute("isLogin",userNo>0);
+        return userNo;
     }
 
 //pageAct
@@ -53,41 +61,41 @@ public class BoardController {
     public String boardList(@RequestParam(value = "pageNo", required = false) Integer pageNo, Model model,
                             HttpServletRequest request){
 
-        isLogin(request, model);
+        loginUser(request, model);
 
         if(pageNo==null){pageNo=1;}
-        List<ArticleVO> list = boardService.articleListSel(1, 10);
-        model.addAttribute("list", list);
+        Map<String, Object> boardMap = boardService.articleListSel(1, 10);
+        PaginationVO pvo = new PaginationVO();
+        pvo.setCurrentPageNo(pageNo);
+        pvo.setTotalArticleCount((int)boardMap.get("total"));
+        log.info("pvo//{}",pvo);
+        model.addAttribute("pagination", pvo);
+        model.addAttribute("shopList", boardMap.get("shopList"));
+        model.addAttribute("list", boardMap.get("articleList"));
         return "board/boardList";
     }
     //쓰기페이지
     @RequestMapping("/writeForm")
     public String writeForm(HttpServletRequest request, Model model){
-        isLogin(request, model);
+        loginUser(request, model);
         //user_no
         List<Object> list = boardService.shopListSel();
         model.addAttribute("shopList", list);
         return "board/write";
     }
     //게시글내용
-//    @ResponseBody
     @RequestMapping("/article/{articleNo}")
     public String getArticleDetail (@PathVariable int articleNo,
                                                  HttpServletRequest request,
                                                  Model model,
                                                  HttpServletResponse response) {
-        int userNo=isLogin(request, model)?Integer.parseInt(CookieUtil.getCookieValue(request, "userNo")):0;
-
         if(!CookieUtil.isInListAs(request, "read", String.valueOf(articleNo))){
-            log.info("cookie 리스트값에 현재 페이지 {} 가 없다면", articleNo);
-            //read 쿠키 수정
             CookieUtil.appendValue(request, response, "read", String.valueOf(articleNo));
-            //조회수 업데이트
             boardService.articleHitUp(articleNo);
         }
+        int userNo = loginUser(request, model);
 
         List<Object> article=boardService.articleDetailSel(articleNo, userNo);
-        model.addAttribute("me",userNo);
         model.addAttribute("contents", article.get(0));
         model.addAttribute("photoList", article.get(1));
         log.info("test->{}",article.get(0));
@@ -95,13 +103,7 @@ public class BoardController {
         model.addAttribute("cnt", list.get(0));
         model.addAttribute("comment",list.get(1));
         return "board/detail";
-
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("contents",boardService.articleDetailSel(articleNo, userNo));
-//        map.put("comment", boardService.commentListSel(articleNo, 1, 50));
-//        return map;
     }
-    //
 
 
 

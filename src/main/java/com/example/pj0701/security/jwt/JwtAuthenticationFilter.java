@@ -1,9 +1,12 @@
 package com.example.pj0701.security.jwt;
 
+import com.example.pj0701.util.CookieUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,33 +18,32 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider){
-        this.jwtTokenProvider = jwtTokenProvider;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
-            final String token = parseBearerToken(request);
+//            final String token = parseBearerToken(request);
+            final String token = CookieUtil.getCookieValue(request, "access_token");
             log.info("Parse jwt ...");
-
             if (token != null && !token.equalsIgnoreCase("null")) {
                 String userId = jwtTokenProvider.validateAccessToken(token);
-
+                log.info("userId:{}",userId);
                 Authentication authentication=jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception ex){
-            log.error("Could not set user authentic in security context", ex);
-        }
         filterChain.doFilter(request, response);
+
+        } catch (Exception ex){
+            log.error("Could not set user authentic in security context //{}", ex.toString());
+            SecurityContextHolder.clearContext();
+        }
     }
     //---------
     private String parseBearerToken(HttpServletRequest request) {

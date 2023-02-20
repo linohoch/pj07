@@ -4,34 +4,27 @@ import com.example.pj0701.security.handler.BasicSuccessHandler;
 import com.example.pj0701.security.handler.CustomLogoutHandler;
 import com.example.pj0701.security.handler.OAuth2FailureHandler;
 import com.example.pj0701.security.handler.OAuth2SuccessHandler;
-import com.example.pj0701.security.service.BasicAuthenticationProvider;
 import com.example.pj0701.security.service.CustomUserService;
 import com.example.pj0701.security.jwt.JwtAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import lombok.RequiredArgsConstructor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.Filter;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -51,6 +44,14 @@ public class WebSecurityConfig {
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final BasicSuccessHandler basicSuccessHandler;
     private final CustomLogoutHandler customLogoutHandler;
+
+    @Bean
+    public FilterRegistrationBean<Filter> filterRegistrationBean(){
+        FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
+        filterRegistrationBean.setFilter(jwtAuthenticationFilter);
+        filterRegistrationBean.setEnabled(false);
+        return filterRegistrationBean;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
@@ -82,20 +83,20 @@ public class WebSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
             .and()
-                .authorizeRequests().antMatchers("/admin").hasRole("ADMIN")
-                                    .antMatchers("**","/auth/**", "/auth2/**",
-                                            "/swagger-ui/**","/swagger/**").permitAll()//접근허용경로
+                .authorizeRequests()
+                .antMatchers("/auth/**", "/auth2/**", "/swagger-ui/**","/swagger/**","/board/list").permitAll()//접근허용경로
+                .antMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated()
 
-            .and()
-                .formLogin()
-                .loginPage("/auth/loginForm")
-                .usernameParameter("userId")
-                .passwordParameter("pw")
-                .loginProcessingUrl("/auth2/login") //액션url
-//                .defaultSuccessUrl("/",false)
-                .failureUrl("/auth/loginForm")
-                .successHandler(basicSuccessHandler)
+//            .and()
+//                .formLogin()
+//                .loginPage("/auth/loginForm")
+//                .usernameParameter("userId")
+//                .passwordParameter("pw")
+//                .loginProcessingUrl("/auth2/login") //액션url
+//                .failureUrl("/auth/loginForm")
+//                .successHandler(basicSuccessHandler)
+
 //                .successHandler((request, response, authentication) -> response.sendRedirect("/"))
 //                .failureHandler((request, response, exception) -> {
 //                    request.getSession().setAttribute("error.message", exception.getMessage());
@@ -121,7 +122,10 @@ public class WebSecurityConfig {
             .and()
                 .defaultSuccessUrl("/",false)
                 .successHandler(oAuth2SuccessHandler)
-                .failureHandler(oAuth2FailureHandler);
+                .failureHandler(oAuth2FailureHandler)
+            .and()
+                .logout()
+                .logoutUrl("/auth2/logout");
 
         // Filter
         http    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -29,6 +29,7 @@ export class content_page {
         this.eventBinding();
 
         this.select = {
+            focusShop: '',
             submitBtn: '',
             inputTags: []
         }
@@ -52,10 +53,9 @@ export class content_page {
 
             //shopCard를 article로 임시로 쓰는 중
             //게시글클릭
-            document.querySelectorAll('.shopCard').forEach(el => {
+            document.querySelectorAll('.shopCard').forEach((el) => {
                 el.addEventListener('click', (ev) => {
-                    console.log("ttqut")
-                    let articleNo = ev.currentTarget.querySelector('.title').dataset.key;
+                    let articleNo = ev.currentTarget.dataset.key;
                     let url = `/board/article/${articleNo}`;
                     window.location.href = url;
                 })

@@ -35,27 +35,27 @@ public class AuthUserInfo implements UserDetails, OAuth2User, OidcUser, Credenti
 
     @Override
     public String getName() {
-        return null;
+        return this.username;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return this.accountNonExpired;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return this.accountNonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return this.credentialsNonExpired;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return this.enabled;
     }
 
     @Override

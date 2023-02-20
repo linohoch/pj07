@@ -49,36 +49,6 @@ public class CustomUserService implements OAuth2UserService<OAuth2UserRequest, O
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
         log.info("oAuth2User // attributes -> {} // authorities -> {}", oAuth2User.getAttributes(), oAuth2User.getAuthorities());
-
-//--------
-//        Pj07UserInfoVO DBUser = Optional.ofNullable(
-//                                    userMapper.selectUserById(
-//                                            oAuth2User.getAttributes().get("email").toString()
-//                                    )
-//                                ).orElseGet(Pj07UserInfoVO::new);
-//
-//        log.info("is null? // {}", DBUser);//userNo int로 해놔서 0넘어옴.
-//
-//            //DB 회원이 아닌 경우
-//            if (DBUser.getUserNo() == 0) {
-//                log.info("not signed email // {}", oAuth2User.getAttributes().get("email"));
-//                //소셜 회원등록 진행
-//                Pj07UserInfoVO pj07UserInfoVO= Pj07UserInfoVO.builder()
-//                        .userId(oAuth2User.getAttributes().get("email").toString())
-//                        .firstName(oAuth2User.getAttributes().get("given_name").toString())
-//                        .lastName(oAuth2User.getAttributes().get("family_name").toString())
-//                        .providerType(provider)
-//                        .build();
-//                userMapper.createSocialUser(pj07UserInfoVO);
-//            }
-//            //DB 회원이지만 로그인방식이 다른 경우
-//            if (DBUser.getProviderType() == null || !DBUser.getProviderType().equals(provider)) {
-//                log.info("miss matched signup type");
-//                //로그인 방식을 추가할지
-//            }
-//            userMapper.updateLoginTimestamp(DBUser.getUserNo());
-//-----이상의 로직을 success핸들러로 이동
-
         return OAuth2Attributes.of(provider,
                                    userNameAttributeName,
                                    oAuth2User.getAttributes());

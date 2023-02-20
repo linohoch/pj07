@@ -32,8 +32,8 @@ public interface BoardMapper {
 //    int shopInfoDel(ShopInfoVO shopInfoVO);
 
     //게시글리스트 가져오기
-    @ResultMap({"ResultMap.integer","ResultMap.ArticleVO"})
-    @Select("CALL pj1.p_article_list_sel(#{pageNo},#{cntPerPage},#{orderCol},#{orderBy})")
+    @ResultMap({"ResultMap.integer","ResultMap.integer","ResultMap.ArticleVO"})
+    @Select("CALL pj1.p_article_list_sel_v4(#{pageNo},#{cntPerPage},#{orderCol},#{orderBy})")
     List<Object> articleListSel(int pageNo, int cntPerPage, char orderCol, char orderBy);
 
     /**
