@@ -32,11 +32,8 @@ public class BasicSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        //
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        //
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         AuthUserInfo userDetails = (AuthUserInfo) authentication.getPrincipal();
         log.info("getUserNo // {}",userDetails.getUserNo());
         log.info("getUsername // {}",userDetails.getUsername());

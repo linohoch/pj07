@@ -4,6 +4,7 @@ import com.example.pj0701.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
@@ -15,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -31,19 +33,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
 //            final String token = parseBearerToken(request);
             final String token = CookieUtil.getCookieValue(request, "access_token");
-            log.info("Parse jwt ...");
-            if (token != null && !token.equalsIgnoreCase("null")) {
+            log.info("Parse jwt ... {}", !Objects.equals(token, "null"));
+            if(!Objects.equals(token, "null")) {
                 String userId = jwtTokenProvider.validateAccessToken(token);
                 log.info("userId:{}",userId);
                 Authentication authentication=jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+                                securityContext.setAuthentication(authentication);
+                SecurityContextHolder.setContext(securityContext);
             }
-        filterChain.doFilter(request, response);
 
         } catch (Exception ex){
             log.error("Could not set user authentic in security context //{}", ex.toString());
-            SecurityContextHolder.clearContext();
+//            SecurityContextHolder.clearContext();
         }
+            filterChain.doFilter(request, response);
     }
     //---------
     private String parseBearerToken(HttpServletRequest request) {

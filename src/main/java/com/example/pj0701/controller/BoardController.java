@@ -23,10 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.stream.events.Comment;
 import java.io.IOException;
 import java.net.HttpCookie;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Controller
@@ -43,32 +40,43 @@ public class BoardController {
     public Object test (@RequestParam int articleNo, @RequestParam int userNo){
         return boardService.procTest(articleNo, userNo);}
 
-    private int loginUser(HttpServletRequest request, Model model){
-        AuthUserInfo userInfo = new AuthUserInfo();
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if(!(auth instanceof AnonymousAuthenticationToken)){
-            userInfo = (AuthUserInfo) auth.getPrincipal();
-        }
-        int userNo = userInfo.getUserNo();
-        model.addAttribute("userInfo", userInfo);
-        model.addAttribute("isLogin",userNo>0);
-        return userNo;
+//    private int loginUser(HttpServletRequest request, Model model){
+//        AuthUserInfo userInfo = new AuthUserInfo();
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if(!(auth instanceof AnonymousAuthenticationToken)){
+//            userInfo = (AuthUserInfo) auth.getPrincipal();
+//        }
+//        int userNo = userInfo.getUserNo();
+//        model.addAttribute("userInfo", userInfo);
+//        model.addAttribute("isLogin",userNo>0);
+//        return userNo;
+//    }
+    private AuthUserInfo user(Authentication authentication){
+        log.info("컨트롤러에서 뽑은 auth//{}",authentication);
+        return authentication!=null? (AuthUserInfo) authentication.getPrincipal():new AuthUserInfo();
     }
 
 //pageAct
     //메인리스트
     @RequestMapping("/list")
-    public String boardList(@RequestParam(value = "pageNo", required = false) Integer pageNo, Model model,
-                            HttpServletRequest request){
+    public String boardList(@RequestParam(value = "pageNo", required = false)
+                                        Integer pageNo,
+                                        Model model,
+                                        HttpServletRequest request,
+                                        Authentication auth
+                                        ){
+        AuthUserInfo user = user(auth);
+        int userNo=user.getUserNo();
+        model.addAttribute("userInfo", user);
+        model.addAttribute("isLogin",userNo>0);
 
-        loginUser(request, model);
+        log.info("컨트롤러에서 뽑은 principal//{}",auth);
 
         if(pageNo==null){pageNo=1;}
         Map<String, Object> boardMap = boardService.articleListSel(1, 10);
         PaginationVO pvo = new PaginationVO();
         pvo.setCurrentPageNo(pageNo);
         pvo.setTotalArticleCount((int)boardMap.get("total"));
-        log.info("pvo//{}",pvo);
         model.addAttribute("pagination", pvo);
         model.addAttribute("shopList", boardMap.get("shopList"));
         model.addAttribute("list", boardMap.get("articleList"));
@@ -77,23 +85,26 @@ public class BoardController {
     //쓰기페이지
     @RequestMapping("/writeForm")
     public String writeForm(HttpServletRequest request, Model model){
-        loginUser(request, model);
         //user_no
         List<Object> list = boardService.shopListSel();
         model.addAttribute("shopList", list);
         return "board/write";
     }
     //게시글내용
-    @RequestMapping("/article/{articleNo}")
+    @GetMapping("/article/{articleNo}")
     public String getArticleDetail (@PathVariable int articleNo,
                                                  HttpServletRequest request,
                                                  Model model,
-                                                 HttpServletResponse response) {
+                                                 HttpServletResponse response,
+                                                 Authentication auth) {
         if(!CookieUtil.isInListAs(request, "read", String.valueOf(articleNo))){
             CookieUtil.appendValue(request, response, "read", String.valueOf(articleNo));
             boardService.articleHitUp(articleNo);
         }
-        int userNo = loginUser(request, model);
+        AuthUserInfo user = user(auth);
+        int userNo=user.getUserNo();
+        model.addAttribute("userInfo", user);
+        model.addAttribute("isLogin",userNo>0);
 
         List<Object> article=boardService.articleDetailSel(articleNo, userNo);
         model.addAttribute("contents", article.get(0));
@@ -148,7 +159,7 @@ public class BoardController {
         return "redirect:/";
     }
     //게시글 등록
-    @RequestMapping("/ins")
+    @PostMapping("/article")
     public String articleFileInsert(@RequestPart(value="files", required=false) List<MultipartFile> multipartFileList,
                                     @RequestParam HashMap<String,String> param,
                                                   HttpServletRequest request)throws IOException {

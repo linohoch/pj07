@@ -2,11 +2,18 @@ package com.example.pj0701.security.handler;
 
 import com.example.pj0701.proc.UserMapper;
 import com.example.pj0701.security.jwt.JwtTokenProvider;
+import com.example.pj0701.security.service.CustomUserService;
+import com.example.pj0701.security.userInfo.AuthUserInfo;
 import com.example.pj0701.security.userInfo.OAuth2Attributes;
 import com.example.pj0701.util.CookieUtil;
 import com.example.pj0701.vo.Pj07UserInfoVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -24,51 +31,26 @@ import java.util.Optional;
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    UserMapper userMapper;
     JwtTokenProvider jwtTokenProvider;
 
-    OAuth2SuccessHandler(JwtTokenProvider jwtTokenProvider, UserMapper userMapper){
+    OAuth2SuccessHandler(JwtTokenProvider jwtTokenProvider){
         this.jwtTokenProvider=jwtTokenProvider;
-        this.userMapper=userMapper;
     }
-
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication auth) throws IOException, ServletException {
 
-        OAuth2Attributes oAuth2User = (OAuth2Attributes) auth.getPrincipal();
-        Pj07UserInfoVO DBUser = Optional.ofNullable(userMapper.selectUserNoById(oAuth2User.getEmail()))
-                                        .orElseGet(Pj07UserInfoVO::new);
-        log.info("DB is null? // {}", DBUser);//userNo int로 해놔서 0넘어옴.
-        int userNo = DBUser.getUserNo();
-        boolean firstVisit= userNo == 0 ;
-        log.info("firstVisit? // {}",firstVisit);
-//    //1.등록처리
-//        //DB 회원이 아닌 경우(최초로그인)
-        if (firstVisit) {
-            log.info("not signed email // {}", oAuth2User.getAttributes().get("email"));
-            //소셜회원등록 진행
-            Pj07UserInfoVO pj07UserInfoVO= Pj07UserInfoVO.builder()
-                    .userId(oAuth2User.getEmail())
-                    .firstName(oAuth2User.getFirstName())
-                    .lastName(oAuth2User.getLastName())
-                    .providerType(oAuth2User.getProvider())
-                    .build();
-            userNo = userMapper.createSocialUser(pj07UserInfoVO);
-            log.info("createSocialUserNo{}",userNo);
-        }
-//        //DB 회원이지만 로그인방식이 다른 경우
-//        if (DBUser.getProviderType() == null || !DBUser.getProviderType().equals(oAuth2User.getProvider())) {
-//            log.info("miss matched signup type");
-//            //어떻게 처리할지
-//        }
-//        //타임스탬프
-            log.info("timestamp");
-            userMapper.updateLoginTimestamp(DBUser.getUserNo());
-    //2.토큰처리
-            Map<String,String> tokens = jwtTokenProvider.createTokens(oAuth2User.getProvider(), oAuth2User.getEmail());
-            CookieUtil.addCookie(response,"access_token", tokens.get("accessToken"),1000*60*60);
-            response.sendRedirect("/");
+
+        log.info("success핸들러가 받은 auth//{}",auth);
+        AuthUserInfo oAuth2User = (AuthUserInfo) auth.getPrincipal();
+        log.info("success핸들러가 getPrincipal//{}",auth.getPrincipal());
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        Map<String,String> tokens = jwtTokenProvider.createTokens(oAuth2User.getProvider(), oAuth2User.getEmail());
+        CookieUtil.addCookie(response,"access_token", tokens.get("accessToken"),1000*60*60);
+        response.sendRedirect("/");
 
     //3.쿠키처리
         //참고: 쿼링파람에 담는 예제

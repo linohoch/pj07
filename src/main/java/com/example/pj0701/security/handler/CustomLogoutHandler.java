@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -27,5 +28,10 @@ public class CustomLogoutHandler implements LogoutHandler {
         CookieUtil.deleteCookie(request,response,"refresh_token");
         SecurityContextHolder.getContext().setAuthentication(null);
         SecurityContextHolder.clearContext();
+        try {
+            response.sendRedirect("/");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,9 +1,6 @@
 package com.example.pj0701.security.config;
 
-import com.example.pj0701.security.handler.BasicSuccessHandler;
-import com.example.pj0701.security.handler.CustomLogoutHandler;
-import com.example.pj0701.security.handler.OAuth2FailureHandler;
-import com.example.pj0701.security.handler.OAuth2SuccessHandler;
+import com.example.pj0701.security.handler.*;
 import com.example.pj0701.security.service.CustomUserService;
 import com.example.pj0701.security.jwt.JwtAuthenticationFilter;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -30,7 +27,7 @@ import java.util.Collections;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableWebSecurity
+@EnableWebSecurity(debug = false)
 @EnableGlobalMethodSecurity(
         prePostEnabled = true, //어노테이션으로 퍼밋하려면
         securedEnabled = true,
@@ -44,24 +41,22 @@ public class WebSecurityConfig {
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final BasicSuccessHandler basicSuccessHandler;
     private final CustomLogoutHandler customLogoutHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    @Bean
-    public FilterRegistrationBean<Filter> filterRegistrationBean(){
-        FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
-        filterRegistrationBean.setFilter(jwtAuthenticationFilter);
-        filterRegistrationBean.setEnabled(false);
-        return filterRegistrationBean;
-    }
+//    @Bean
+//    public FilterRegistrationBean<Filter> filterRegistrationBean(){
+//        FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
+//        filterRegistrationBean.setFilter(jwtAuthenticationFilter);
+//        filterRegistrationBean.setEnabled(false);
+//        return filterRegistrationBean;
+//    }
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .antMatchers("/ignore1", "/ignore2");
-    }
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -84,7 +79,7 @@ public class WebSecurityConfig {
 
             .and()
                 .authorizeRequests()
-                .antMatchers("/auth/**", "/auth2/**", "/swagger-ui/**","/swagger/**","/board/list").permitAll()//접근허용경로
+                .antMatchers("/","/auth/**", "/auth2/**", "/swagger-ui/**","/swagger/**","/board/list").permitAll()//접근허용경로
                 .antMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated()
 
@@ -102,11 +97,11 @@ public class WebSecurityConfig {
 //                    request.getSession().setAttribute("error.message", exception.getMessage());
 //                    response.sendRedirect("/login");
 //                })
-            .and()
-                .logout()
-                .logoutUrl("/auth/logout") //액션url
-                .addLogoutHandler(customLogoutHandler)
-                .logoutSuccessUrl("/")
+//            .and()
+//                .logout()
+//                .logoutUrl("/auth/logout") //액션url
+//                .addLogoutHandler(customLogoutHandler)
+//                .logoutSuccessUrl("/")
 
         // OAuth2
             .and()
@@ -125,8 +120,14 @@ public class WebSecurityConfig {
                 .failureHandler(oAuth2FailureHandler)
             .and()
                 .logout()
-                .logoutUrl("/auth2/logout");
-
+                .logoutUrl("/auth2/logout")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .addLogoutHandler(customLogoutHandler)
+            .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .accessDeniedHandler(customAccessDeniedHandler);
         // Filter
         http    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 //                .addFilterAfter(jwtAuthenticationFilter, CorsFilter.class);

@@ -7,8 +7,12 @@ import com.example.pj0701.security.userInfo.Role;
 import com.example.pj0701.vo.Pj07UserInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -31,55 +35,67 @@ import java.util.Set;
 public class CustomUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User>,
                                           UserDetailsService {
     final UserMapper userMapper;
-
     //소셜로그인
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+    public AuthUserInfo loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
+        log.info("loadUser가 받은 //{}",oAuth2User);
+        String providerType = userRequest.getClientRegistration().getRegistrationId();
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+        AuthUserInfo userInfo = AuthUserInfo.of(providerType,
+                                                userNameAttributeName,
+                                                oAuth2User.getAttributes());
 
-        log.info("loadUser in CustomUserService");
+        AuthUserInfo userDB = loadUserByUsername(oAuth2User.getAttribute("email"));
+        int userNo = userDB.getUserNo();
+        boolean firstVisit= userNo == 0 ;
+        if (firstVisit) {
+            Pj07UserInfoVO user = Pj07UserInfoVO.builder()
+                    .userId(oAuth2User.getAttribute("email"))
+                    .firstName(oAuth2User.getAttribute("firstName"))
+                    .lastName(oAuth2User.getAttribute("lastName"))
+                    .providerType(providerType)
+                    .build();
+            userNo = userMapper.createSocialUser(user);
+        }
+        userInfo.setUserNo(userNo);
+        userInfo.setAuthorities(userDB.getAuthorities());
 
-        String provider = userRequest
-                .getClientRegistration()
-                .getRegistrationId();
-        String userNameAttributeName = userRequest
-                .getClientRegistration()
-                .getProviderDetails()
-                .getUserInfoEndpoint()
-                .getUserNameAttributeName();
-        log.info("oAuth2User // attributes -> {} // authorities -> {}", oAuth2User.getAttributes(), oAuth2User.getAuthorities());
-        return OAuth2Attributes.of(provider,
-                                   userNameAttributeName,
-                                   oAuth2User.getAttributes());
+        if (userDB.getProvider() == null || !userDB.getProvider().equals(providerType)){
+            //TODO
+        }
+        userMapper.updateLoginTimestamp(userNo);
+
+
+        log.info("loadUser가 뱉은//{}",userInfo);
+        return userInfo;
         //-->OAuth2LoginAuthenticationProvider
     }
 
     //일반로그인
     @Override
     public AuthUserInfo loadUserByUsername(String userId) throws UsernameNotFoundException {
-        log.info("loadUserByUsername in CustomUserService");
-        Pj07UserInfoVO userInfoVO = new Pj07UserInfoVO();
-        if(userMapper.countUserById(userId)>0)
-            userInfoVO = userMapper.selectUser(userId);
 
+        Pj07UserInfoVO userInfoVO = Optional.ofNullable(userMapper.selectUser(userId))
+                                            .orElseGet(Pj07UserInfoVO::new);
         Set<GrantedAuthority> grantedAuthoritySet = new HashSet<>();
-//        if(userInfoVO.getAdminYn .equals("y")){
-//        grantedAuthoritySet.add(new SimpleGrantedAuthority(Role.ADMIN.getCode()));
-//          }
+
+//        if(userInfoVO.getAdminYn().equals("y")){
+//            grantedAuthoritySet.add(new SimpleGrantedAuthority(Role.ADMIN.getCode()));
+//        }
         grantedAuthoritySet.add(new SimpleGrantedAuthority(Role.MEMBER.getCode()));
-//        return new User(userInfoVO.getUserId(),
-//                        userInfoVO.getPw(),
-//                        grantedAuthoritySet);
+
         return AuthUserInfo.builder()
+                .authorities(grantedAuthoritySet)
                 .userNo(userInfoVO.getUserNo())
                 .username(userInfoVO.getUserId())
                 .password(userInfoVO.getPw())
+                .role(Role.MEMBER)
                 .accountNonExpired(true)
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)
                 .enabled(true)
-                .authorities(grantedAuthoritySet)
                 .build();
 
         //--> provider

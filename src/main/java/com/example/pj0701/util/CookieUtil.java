@@ -23,7 +23,7 @@ public class CookieUtil {
                 }
             }
         }
-        return "";
+        return "null";
     }
     public static void appendValue(HttpServletRequest request,
                                       HttpServletResponse response,

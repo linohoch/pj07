@@ -2,6 +2,7 @@ package com.example.pj0701.security.jwt;
 
 import com.example.pj0701.proc.UserMapper;
 import com.example.pj0701.security.service.CustomUserService;
+import com.example.pj0701.security.userInfo.AuthUserInfo;
 import com.example.pj0701.util.TimeUtil;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-
+    public static final int CHECK_LIMIT = 1000 * 60 * 10;//10분
     public static final int ACCESS_AGE = 1000 * 60 * 60; //1시간;
     public static final int REFRESH_AGE = 1000 * 60 * 60 * 24 * 7; //7일
     private final UserMapper userMapper;
@@ -155,7 +156,7 @@ public class JwtTokenProvider {
 
     //인증정보 생성, 소셜도 이것 씀
     public Authentication getAuthentication(String token){
-        UserDetails userDetails = customUserService.loadUserByUsername(getUsername(token));
+        AuthUserInfo userDetails = customUserService.loadUserByUsername(getUsername(token));
             return new UsernamePasswordAuthenticationToken(userDetails,
                                                  null,
                                                            userDetails.getAuthorities());

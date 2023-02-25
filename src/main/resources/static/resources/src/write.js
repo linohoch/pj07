@@ -36,7 +36,7 @@ export class write{
         //제출전검사
         document.querySelectorAll('.required').forEach((input)=>{
                 input.classList.add('empty');
-                input.addEventListener('change',(e)=>{
+                input.addEventListener('blur',(e)=>{
                     if(e.currentTarget.value.trim().length>0){
                         e.currentTarget.classList.remove('empty')
                     }else{
