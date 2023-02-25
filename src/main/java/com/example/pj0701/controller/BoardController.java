@@ -70,8 +70,6 @@ public class BoardController {
         model.addAttribute("userInfo", user);
         model.addAttribute("isLogin",userNo>0);
 
-        log.info("컨트롤러에서 뽑은 principal//{}",auth);
-
         if(pageNo==null){pageNo=1;}
         Map<String, Object> boardMap = boardService.articleListSel(1, 10);
         PaginationVO pvo = new PaginationVO();

@@ -49,8 +49,6 @@ public class JwtTokenProvider {
     public Map<String, String> createTokens(String provider, String userId){
         Date expiryDate = new Date(System.currentTimeMillis()+ACCESS_AGE);
         Date refreshExDate = new Date(System.currentTimeMillis()+REFRESH_AGE);
-//        Date expiryDate = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
-//        Date refreshExDate = Date.from(Instant.now().plus(7, ChronoUnit.DAYS));
         Map<String, String> tokens = new HashMap<>();
         log.info("create token ... expiry//{}",expiryDate);
         Claims claims = Jwts.claims().setSubject(userId);//sub = email = userId

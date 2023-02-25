@@ -40,10 +40,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication auth) throws IOException, ServletException {
 
-
-        log.info("success핸들러가 받은 auth//{}",auth);
         AuthUserInfo oAuth2User = (AuthUserInfo) auth.getPrincipal();
-        log.info("success핸들러가 getPrincipal//{}",auth.getPrincipal());
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(auth);
         SecurityContextHolder.setContext(securityContext);

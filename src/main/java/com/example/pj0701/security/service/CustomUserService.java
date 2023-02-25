@@ -40,7 +40,6 @@ public class CustomUserService implements OAuth2UserService<OAuth2UserRequest, O
     public AuthUserInfo loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
-        log.info("loadUser가 받은 //{}",oAuth2User);
         String providerType = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
         AuthUserInfo userInfo = AuthUserInfo.of(providerType,
@@ -67,8 +66,6 @@ public class CustomUserService implements OAuth2UserService<OAuth2UserRequest, O
         }
         userMapper.updateLoginTimestamp(userNo);
 
-
-        log.info("loadUser가 뱉은//{}",userInfo);
         return userInfo;
         //-->OAuth2LoginAuthenticationProvider
     }

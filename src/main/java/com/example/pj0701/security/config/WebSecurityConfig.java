@@ -44,16 +44,6 @@ public class WebSecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-//    @Bean
-//    public FilterRegistrationBean<Filter> filterRegistrationBean(){
-//        FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
-//        filterRegistrationBean.setFilter(jwtAuthenticationFilter);
-//        filterRegistrationBean.setEnabled(false);
-//        return filterRegistrationBean;
-//    }
-
-
-
     @Bean
     public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
