@@ -20,5 +20,9 @@ const axios = require('axios');
         let url=`/api/articles/${articleNo}/like`
         return axios.delete(url)
     }
+    export const likeComment=(articleNo, commentNo, yn)=>{
+        let url=`/api/articles/${articleNo}/comment/${commentNo}/like?like=${yn}`
+        return axios.put(url)
+    }
 
 

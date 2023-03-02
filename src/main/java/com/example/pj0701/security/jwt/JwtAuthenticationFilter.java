@@ -32,7 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
 //            final String token = parseBearerToken(request);
-            final String token = CookieUtil.getCookieValue(request, "access_token");
+            String token = CookieUtil.getCookieValue(request, "access_token");
+            if(token==null){token=parseBearerToken(request);}
             log.info("Parse jwt ... {}", !Objects.equals(token, "null"));
             if(!Objects.equals(token, "null")) {
                 String userId = jwtTokenProvider.validateAccessToken(token);

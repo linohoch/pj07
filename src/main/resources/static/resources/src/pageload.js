@@ -2,7 +2,7 @@
 
 import tmplt from "../../../templates/board/addShop.html";
 import write_tmplt from "../../../templates/board/write.html";
-import {CancelLike, likeArticle} from "./api"
+import {CancelLike, likeArticle, likeComment} from "./api"
 
 const axios = require('axios');
 const $ = require("jquery");
@@ -62,7 +62,7 @@ export class content_page {
             })
             //게시글좋아요
             const $likeBtn = document.querySelector('.like_btn')
-            if ($likeBtn !== undefined && $likeBtn !== null)
+            if ($likeBtn !== undefined && $likeBtn !== null){
                 $likeBtn.addEventListener('click', (e) => {
                     let likeYn = e.currentTarget.dataset.liked;
                     let articleNo = e.currentTarget.dataset.articleNo;
@@ -83,6 +83,25 @@ export class content_page {
                         })
                     }
                 })
+            }
+            //댓글좋아요
+            const likeBtnC = document.querySelector('.comment_like_btn')
+            if (likeBtnC !== undefined && likeBtnC !== null){
+                likeBtnC.addEventListener('click', async (e) => {
+                    let likeYn = e.currentTarget.dataset.likeyn;
+                    let articleNo = e.currentTarget.dataset.articleNo;
+                    let commentNo = e.currentTarget.dataset.commentNo;
+                    const result = await likeComment(articleNo, commentNo, likeYn);
+                    console.log('likebtn -> ',result.status, result.data)
+                    if (result.data) {
+                        likeBtnC.dataset.likeYn = 'false'
+                        likeBtnC.innerText = 'cancel'
+                    } else {
+                        likeBtnC.dataset.likeYn = 'true'
+                        likeBtnC.innerText = 'like'
+                    }
+                })
+            }
 
             //게시글댓글
             document.querySelector('.lv1_comment_btn').addEventListener('click', (e) => {
@@ -118,8 +137,10 @@ export class content_page {
         }
     }
     insertComment(data){
-        axios.post(COMMENT_URL, JSON.stringify(data), {headers: {"Content-Type": `application/json`},})
+        let token = document.cookie.match("access_cookie")
+        axios.post(COMMENT_URL, JSON.stringify(data), {headers: {"Content-Type": `application/json`, 'Authorization': 'Bearer '+token}})
             .then(res=>{
+
                 //TODO 댓글 영역만 리로딩
                 console.log(res)
                 window.location.reload();

@@ -28,6 +28,8 @@ nav {background-color: #f8f8f8;width: inherit;box-sizing: border-box;box-shadow:
 .comment{padding: 10px 10px 10px 10px; border-left: solid gray;}
 .comment_btn{border: none}
 .comment_btn:focus{outline: none; background-color: white}
+.comment_like_btn{border: none}
+.comment_like_btn:focus{outline: none; background-color: white}
 .comment_textarea{width: 60%; border: none; resize: none; background-color: aliceblue;}
 .comment_textarea:focus{outline: none; background-color: white}
 .comment_textarea_wrapper{display: flex;}

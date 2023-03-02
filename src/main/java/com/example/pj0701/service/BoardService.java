@@ -52,8 +52,8 @@ public class BoardService {
     public List<Object> articleDetailSel(int articleNo, int userNo){
         return boardMapper.articleDetailSel2(articleNo, userNo);
     }
-    public List<Object> commentListSel(int articleNo, int pageNo, int cntPerPage){
-        return boardMapper.commentListSel(articleNo, pageNo, cntPerPage, 'd');
+    public List<Object> commentListSel(int articleNo, int userNo, int pageNo, int cntPerPage){
+        return boardMapper.commentListSel(articleNo, userNo, pageNo, cntPerPage, 'd');
     }
 
     public int articleLikeUp(int articleNo, int userNo){
@@ -65,6 +65,9 @@ public class BoardService {
         int result = boardMapper.articleLikeUserDel(articleNo, userNo);
         if(result>0) return boardMapper.articleLikeDown(articleNo);
         else return result;
+    }
+    public int commentLikeUp(int articleNo, int commentNo, boolean like, int userNo){
+        return boardMapper.commentLikeUpsert(articleNo,commentNo,like,userNo);
     }
 
     public void commentIns(CommentVO commentVO){

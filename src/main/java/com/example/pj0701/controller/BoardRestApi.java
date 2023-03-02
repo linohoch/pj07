@@ -1,5 +1,6 @@
 package com.example.pj0701.controller;
 
+import com.example.pj0701.security.userInfo.AuthUserInfo;
 import com.example.pj0701.service.BoardService;
 import com.example.pj0701.service.S3Service;
 import com.example.pj0701.util.CookieUtil;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +36,9 @@ public class BoardRestApi {
     final BoardService boardService;
     final S3Service s3Service;
 
+    private AuthUserInfo user(Authentication authentication){
+        return authentication!=null? (AuthUserInfo) authentication.getPrincipal():new AuthUserInfo();
+    }
     @Operation(method = "GET", summary = "게시글 쓰기")
     @PostMapping
     public ResponseEntity<?> postArticle(@RequestPart(value="files", required=false) List<MultipartFile> multipartFileList,
@@ -82,8 +87,9 @@ public class BoardRestApi {
     public ResponseEntity<?> getArticleDetail(@PathVariable("articleNo") int articleNo,
                                               @RequestBody Pj07UserInfoVO userInfoVO,
                                               HttpServletRequest request){
+        int userNo = 0; //TODO
         List<Object> article=boardService.articleDetailSel(articleNo, userInfoVO.getUserNo());
-        List<Object> comment=boardService.commentListSel(articleNo, 1, 50);
+        List<Object> comment=boardService.commentListSel(articleNo, userNo,1, 50);
         Map<String, Object> result = new HashMap<>();
             result.put("article",article);
             result.put("comment",comment);
@@ -104,9 +110,11 @@ public class BoardRestApi {
     @PutMapping("/{articleNo}/like")
     public ResponseEntity<?> putLike(@PathVariable("articleNo") int articleNo,
 //                                     @PathVariable("userNo") int userNo
-                                     HttpServletRequest request
+                                     HttpServletRequest request,
+                                     Authentication auth
     ){
-        int userNo=Integer.parseInt(CookieUtil.getCookieValue(request,"userNo"));
+        int userNo=user(auth).getUserNo();
+//        int userNo=Integer.parseInt(CookieUtil.getCookieValue(request,"userNo"));
         int result = boardService.articleLikeUp(articleNo, userNo);
         if(result>0) return ResponseEntity.status(201).build();
         return ResponseEntity.status(202).build();
@@ -115,9 +123,11 @@ public class BoardRestApi {
     @DeleteMapping("/{articleNo}/like")
     public ResponseEntity<?> deleteLike(@PathVariable("articleNo") int articleNo,
 //                                        @PathVariable("userNo") int userNo
-                                        HttpServletRequest request
+                                        HttpServletRequest request,
+                                        Authentication auth
     ){
-        int userNo=Integer.parseInt(CookieUtil.getCookieValue(request,"userNo"));
+        int userNo=user(auth).getUserNo();
+//        int userNo=Integer.parseInt(CookieUtil.getCookieValue(request,"userNo"));
         int result = boardService.articleLikeDown(articleNo, userNo);
         if(result>0) return ResponseEntity.status(201).build();
         return ResponseEntity.status(202).build();
@@ -127,7 +137,9 @@ public class BoardRestApi {
     @Operation(method = "POST", summary = "n번 게시물 코멘트 입력")
     @PostMapping("/{articleNo}/comment")
     public ResponseEntity<?> postComment(@PathVariable("articleNo") int articleNo,
-                                         @RequestBody CommentVO commentVO){
+                                         @RequestBody CommentVO commentVO,
+                                         Authentication auth){
+        commentVO.setUserNo(user(auth).getUserNo());
         boardService.commentIns(commentVO);
         return null;
     }
@@ -154,6 +166,18 @@ public class BoardRestApi {
         boardService.commentDel(articleNo, commentNo);
         return null;
     }
-
-
+    @Operation(method = "PUT", summary = "댓글 좋아요 추가, 삭제")
+    @PutMapping("/{articleNo}/comment/{commentNo}/like")
+    public ResponseEntity<?> putLikeComment(@PathVariable("articleNo") int articleNo,
+                                            @PathVariable("commentNo") int commentNo,
+                                            @RequestParam("like") boolean like,
+                                            Authentication auth
+    ){
+        int userNo=user(auth).getUserNo();
+        log.info("글{}댓글{}라이크{}사람{}",articleNo, commentNo, like, userNo);
+        int result = boardService.commentLikeUp(articleNo, commentNo, like, userNo);
+//        if(result>0) return ResponseEntity.status(201).build();
+        log.info("in put like//{}",result);
+        return ResponseEntity.status(201).body(result);
+    }
 }

@@ -108,7 +108,7 @@ public class BoardController {
         model.addAttribute("contents", article.get(0));
         model.addAttribute("photoList", article.get(1));
         log.info("test->{}",article.get(0));
-        List<Object> list=boardService.commentListSel(articleNo, 1, 50);
+        List<Object> list=boardService.commentListSel(articleNo, userNo,1, 50);
         model.addAttribute("cnt", list.get(0));
         model.addAttribute("comment",list.get(1));
         return "board/detail";

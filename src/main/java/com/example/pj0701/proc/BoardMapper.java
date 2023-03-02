@@ -83,6 +83,10 @@ public interface BoardMapper {
     int articleLikeUserIns(int articleNo, int userNo);
     @Delete("Delete FROM pj1.user_article_likeYn WHERE user_no=#{userNo} and article_no=#{articleNo}")
     int articleLikeUserDel(int articleNo, int userNo);
+    //댓글 좋아요 수정
+    @ResultMap({"ResultMap.integer"})
+    @Select("CALL pj1.p_comment_like_up_v1(#{articleNo},#{commentNo},#{like},#{userNo})")
+    int commentLikeUpsert(int articleNo, int commentNo, boolean like, int userNo);
 
     //-------------------------------------------------------------
 
@@ -119,8 +123,8 @@ public interface BoardMapper {
 
     //댓글리스트 가져오기
     @ResultMap({"ResultMap.integer","ResultMap.CommentVO"})
-    @Select("CALL pj1.p_comment_list_sel_v2(#{articleNo},#{pageNo},#{cntPerPage},#{orderSlct})")
-    List<Object> commentListSel(int articleNo, int pageNo, int cntPerPage, char orderSlct);
+    @Select("CALL pj1.p_comment_list_sel_v4(#{articleNo},#{userNo},#{pageNo},#{cntPerPage},#{orderSlct})")
+    List<Object> commentListSel(int articleNo, int userNo, int pageNo, int cntPerPage, char orderSlct);
 //    @ResultMap("ResultMap.CommentVO")
 //    @Select("select * from comments where article_no=#{articleNo} order by grp desc, seq asc limit #{pageNo},#{cntPerPage}")
 //    int commentListSel(int articleNo, int pageNo, int cntPerPage);

@@ -15,6 +15,8 @@ public class CommentVO {
     private int userNo;     //댓글 작성자
     private String contents;//댓글 내용
 
+    private int likeCnt;  //좋아요 집계
+    private boolean likeYn;  //조회유저의 여부
     private String insDate;
     private String upDate;
 

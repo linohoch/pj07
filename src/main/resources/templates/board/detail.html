@@ -79,6 +79,8 @@
                                     [[${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}]]
                                 </div>
                                 <div>ins_date [[${vo.insDate}]]</div>
+                                <div>likeCnt[[${vo.likeCnt}]]</div>
+                                <div>likeYn[[${vo.likeYn}]]</div>
                             </div>
                             <div class="comment_textarea_wrapper">
                                 <th:block th:unless="${isLogin}">
@@ -94,6 +96,10 @@
                                         th:data-comment-no="${vo.commentNo}"
                                         th:data-parent-no="${vo.parentNo}"
                                         class="comment_btn">comment</button>
+                                <button class="comment_like_btn"
+                                        th:data-likeYn="${vo.likeYn}"
+                                        th:data-article-no="${vo.articleNo}"
+                                        th:data-comment-no="${vo.commentNo}">likeBtn</button>
                             </div>
                         </div>
                     </div>
